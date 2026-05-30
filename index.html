@@ -1,1 +1,471 @@
-test
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ona tili Test</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Source+Serif+4:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1923;
+      --card: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.12);
+      --gold: #e8a020;
+      --gold2: #c97d10;
+      --text: #f0e6c8;
+      --muted: #8aacbf;
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --blue: #3498db;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      font-family: 'Source Serif 4', serif;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px;
+      background-image: radial-gradient(ellipse at 20% 20%, rgba(232,160,32,0.07) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 80%, rgba(52,152,219,0.07) 0%, transparent 60%);
+    }
+    #app { max-width: 560px; margin: 0 auto; }
+
+    /* START SCREEN */
+    .start-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 90vh; text-align: center; gap: 20px;
+      animation: fadeIn 0.5s ease;
+    }
+    .start-icon { font-size: 64px; margin-bottom: 4px; }
+    .start-title { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--text); }
+    .start-subtitle { color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .topics-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 18px 22px; width: 100%; text-align: left;
+    }
+    .topic-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .topic-row:last-child { margin-bottom: 0; }
+    .topic-row span:first-child { font-size: 18px; }
+    .topic-row span:last-child { color: #c8dce8; font-size: 14px; }
+    .btn-start {
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #fff; border: none; border-radius: 14px;
+      padding: 16px 52px; font-size: 17px; font-weight: 600;
+      cursor: pointer; font-family: 'Source Serif 4', serif;
+      box-shadow: 0 6px 24px rgba(232,160,32,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+      width: 100%;
+    }
+    .btn-start:active { transform: scale(0.97); }
+
+    /* QUIZ SCREEN */
+    .quiz-screen { animation: fadeIn 0.4s ease; }
+    .quiz-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .q-counter { color: var(--muted); font-size: 13px; }
+    .timer {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px; padding: 5px 14px; font-size: 15px; font-weight: 600;
+      transition: all 0.3s;
+    }
+    .timer.urgent { background: rgba(231,76,60,0.2); border-color: rgba(231,76,60,0.5); color: #e74c3c; }
+    .score-badge { color: #2ecc71; font-size: 13px; }
+    .progress-bar {
+      height: 5px; background: rgba(255,255,255,0.08);
+      border-radius: 999px; margin-bottom: 18px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold2));
+      border-radius: 999px; transition: width 0.4s ease;
+    }
+    .card {
+      background: var(--card); backdrop-filter: blur(10px);
+      border: 1px solid var(--border); border-radius: 20px;
+      padding: 24px; box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+    }
+    .category-tag {
+      display: inline-block; border-radius: 8px;
+      padding: 4px 12px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.5px; margin-bottom: 14px; text-transform: uppercase;
+    }
+    .question-text {
+      font-size: 16px; line-height: 1.75; color: var(--text);
+      margin-bottom: 20px; font-weight: 500;
+    }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 13px 16px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer; transition: all 0.2s; text-align: left;
+      font-family: 'Source Serif 4', serif;
+    }
+    .option-btn:active { transform: scale(0.98); }
+    .option-btn.selected {
+      background: rgba(232,160,32,0.15);
+      border-color: rgba(232,160,32,0.7);
+    }
+    .option-btn.correct {
+      background: rgba(46,204,113,0.2);
+      border-color: var(--green);
+    }
+    .option-btn.wrong {
+      background: rgba(231,76,60,0.15);
+      border-color: var(--red);
+    }
+    .option-circle {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .option-text { color: #cde4f0; font-size: 14px; line-height: 1.5; }
+    .explanation {
+      margin-top: 14px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+      padding: 13px; animation: fadeIn 0.3s ease;
+    }
+    .explanation p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .explanation strong { color: var(--text); }
+    .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+    .btn-confirm {
+      flex: 1; background: linear-gradient(135deg, var(--gold), var(--gold2));
+      border: none; border-radius: 12px; padding: 14px;
+      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+      font-family: 'Source Serif 4', serif; transition: all 0.2s;
+    }
+    .btn-confirm:disabled {
+      background: rgba(255,255,255,0.07); color: #555; cursor: not-allowed;
+    }
+    .btn-next {
+      flex: 1; background: linear-gradient(135deg, #2980b9, #1abc9c);
+      border: none; border-radius: 12px; padding: 14px;
+      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+      font-family: 'Source Serif 4', serif;
+    }
+
+    /* RESULT SCREEN */
+    .result-screen {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 90vh; text-align: center;
+      gap: 16px; animation: fadeIn 0.5s ease;
+    }
+    .result-emoji { font-size: 60px; }
+    .result-title { font-family: 'Playfair Display', serif; font-size: 22px; }
+    .result-score { font-size: 54px; font-weight: 700; }
+    .result-grade { font-size: 16px; font-weight: 600; }
+    .stats-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px; width: 100%;
+      display: flex; justify-content: space-around;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+    .stat-label { color: var(--muted); font-size: 12px; }
+    .divider { width: 1px; background: rgba(255,255,255,0.1); }
+    .btn-review {
+      width: 100%; background: rgba(231,76,60,0.15);
+      border: 1px solid rgba(231,76,60,0.4); border-radius: 12px;
+      padding: 14px; color: var(--red); font-size: 15px; cursor: pointer;
+      font-family: 'Source Serif 4', serif; transition: all 0.2s;
+    }
+    .btn-restart {
+      width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold2));
+      border: none; border-radius: 12px; padding: 14px;
+      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+      font-family: 'Source Serif 4', serif;
+    }
+
+    /* REVIEW SCREEN */
+    .review-screen { animation: fadeIn 0.4s ease; }
+    .review-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .btn-back {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 13px; font-family: 'Source Serif 4', serif;
+    }
+    .btn-nav {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px; padding: 8px 16px; color: var(--text);
+      cursor: pointer; font-size: 13px; font-family: 'Source Serif 4', serif;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// Telegram WebApp init
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+}
+
+const CATEGORY_COLORS = {
+  "Imlo va grammatika": "#e74c3c",
+  "Morfologiya": "#8e44ad",
+  "Sintaksis": "#2980b9",
+  "Adabiyot": "#27ae60",
+  "Adabiyot — janr": "#16a085",
+  "Leksikologiya": "#d35400",
+  "Fonetika": "#c0392b",
+  "Adabiy san'atlar": "#7f8c8d",
+};
+
+const QUESTIONS = [
+  { id:1, category:"Imlo va grammatika", question:"Qaysi so'zda imlo xatosi yo'q?", options:["Aqliy","Insoniyaat","Maktabgacha","Qoʻshimcha"], answer:0, explanation:"'Aqliy' — aql+iy, to'g'ri yozilgan. 'Insoniyaat' xato, to'g'risi 'insoniyat'." },
+  { id:2, category:"Imlo va grammatika", question:"Qaysi gapda vergul to'g'ri qo'llangan?", options:["Ali, Vali va Soli keldi.","Ali, Vali, va Soli, keldi.","Ali Vali, va Soli keldi.","Ali, Vali, va, Soli keldi."], answer:0, explanation:"Uyushiq bo'laklar orasiga vergul qo'yiladi, lekin oxirgi uyushiq bo'lak oldida 'va' bo'lsa vergul qo'yilmaydi." },
+  { id:3, category:"Morfologiya", question:"'Ishlamoqchi' so'zining grammatik shakli:", options:["O'tgan zamon","Sifatdosh","Kelasi zamon maqsad shakli","Harakat nomi"], answer:2, explanation:"-moqchi qo'shimchasi kelasi zamonga niyat bildiruvchi fe'l shakli hosil qiladi." },
+  { id:4, category:"Morfologiya", question:"Qaysi so'z sifat turkumiga kiradi?", options:["Yugurmoq","Baland","Daryo","Tez-tez"], answer:1, explanation:"'Baland' predmetning belgisini bildiradi — sifat turkumi." },
+  { id:5, category:"Morfologiya", question:"Qaysi qatorda faqat olmoshlar bor?", options:["Men, kitob, u","Men, sen, u, biz","Sen, yaxshi, ular","Biz, tez, bu"], answer:1, explanation:"Men, sen, u, biz — barchasi shaxs olmoshlari." },
+  { id:6, category:"Sintaksis", question:"Qaysi gap murakkab gap?", options:["Bolalar o'ynadi.","Yomg'ir yog'di.","Bahor keldi va tabiat uyg'ondi.","Qushlar uchdi."], answer:2, explanation:"Ikki sodda gapdan 'va' bog'lovchisi orqali hosil bo'lgan — bog'langan qo'shma gap." },
+  { id:7, category:"Sintaksis", question:"Uyushiq bo'laklar qaysi gapda bor?", options:["Ali maktabga bordi.","Ona non, sariyog', qand sotib oldi.","Bola kitob o'qidi.","Quyosh chiqdi."], answer:1, explanation:"'Non, sariyog', qand' — uyushiq to'ldiruvchilar." },
+  { id:8, category:"Sintaksis", question:"Qaysi gapda aniqlovchi bor?", options:["Bola kitob o'qidi.","Chiroyli qiz keldi.","U maktabga bordi.","Ular o'ynashdi."], answer:1, explanation:"'Chiroyli' — qizning belgisini bildiruvchi aniqlovchi." },
+  { id:9, category:"Adabiyot", question:"'O'tkan kunlar' romanining muallifi:", options:["Cho'lpon","Hamza","Abdulla Qodiriy","G'afur G'ulom"], answer:2, explanation:"'O'tkan kunlar' — Abdulla Qodiriy, 1925-yil. O'zbek romanchiligining birinchi namunasi." },
+  { id:10, category:"Adabiyot", question:"Alisher Navoiyning lirik kulliyoti nomi:", options:["Xamsa","Lison ut-tayr","Xazoyin ul-maoniy","Mahbub ul-qulub"], answer:2, explanation:"'Xazoyin ul-maoniy' — to'rt devondan iborat lirik kulliyot." },
+  { id:11, category:"Adabiyot", question:"Cho'lponning qaysi asari she'riy to'plam?", options:["Kecha va kunduz","Uyg'on","O'rik qoqildi","Yorqinoy"], answer:1, explanation:"'Uyg'on' — Cho'lponning she'riy to'plami, milliy uyg'onish g'oyalari." },
+  { id:12, category:"Adabiyot", question:"'Hamlet' tragediyasini kim yozgan?", options:["Dante","Gyote","Balzak","Uilyam Shekspir"], answer:3, explanation:"Hamlet — Uilyam Shekspir, ingliz dramaturgi (1600-1601)." },
+  { id:13, category:"Adabiyot — janr", question:"Qaysi asar xalq eposi (dostoniga) mansub?", options:["O'tkan kunlar","Alpomish","Xamsa","Devonu lug'otit turk"], answer:1, explanation:"'Alpomish' — xalq og'zaki ijodining qahramonlik eposi." },
+  { id:14, category:"Leksikologiya", question:"Sinonimlar qaysi qatorda?", options:["Baland — past","Kun — tun","Yaxshi — zo'r","Issiq — sovuq"], answer:2, explanation:"Sinonimlar — ma'nosi yaqin so'zlar. 'Yaxshi — zo'r'." },
+  { id:15, category:"Leksikologiya", question:"Antonimlar qaysi qatorda?", options:["Katta — ulkan","Baland — past","Tez — shoshqin","Yaxshi — ajoyib"], answer:1, explanation:"Antonimlar — qarama-qarshi ma'noli so'zlar. 'Baland — past'." },
+  { id:16, category:"Fonetika", question:"'Maktab' so'zida nechta harf va tovush?", options:["5 harf, 5 tovush","6 harf, 5 tovush","6 harf, 6 tovush","5 harf, 6 tovush"], answer:2, explanation:"m-a-k-t-a-b = 6 harf, 6 tovush. Har harf alohida tovush." },
+  { id:17, category:"Fonetika", question:"Qaysi so'zda undosh tovushlar yonma-yon?", options:["Arzon","Ota","Stol","Uy"], answer:2, explanation:"'Stol' — s va t undosh tovushlari qo'shni kelgan." },
+  { id:18, category:"Adabiy san'atlar", question:"Tashbeh (o'xshatish) qaysi misolda?", options:["Ko'zlar yulduzday yarqiraydi","Bahor keldi","U kitob o'qidi","Osmon ko'k"], answer:0, explanation:"Tashbeh — bir narsani boshqasiga o'xshatish. 'Ko'zlar yulduzday'." },
+  { id:19, category:"Adabiy san'atlar", question:"Istiora (metafora) qaysi misolda?", options:["U sher kabi kuchli","Vatan — onamiz","Ko'zlar katta","Daryo tez oqadi"], answer:1, explanation:"Istiora — to'g'ridan-to'g'ri ko'chirish. 'Vatan — onamiz'." },
+  { id:20, category:"Imlo va grammatika", question:"Qaysi so'z qo'shma so'z?", options:["Kitob","Bog'cha","Yaxshi","Baland"], answer:1, explanation:"'Bog'cha' — bog' + cha, qo'shma so'z." },
+];
+
+// State
+let state = {
+  screen: 'start', // start | quiz | result | review
+  questions: [],
+  current: 0,
+  selected: null,
+  confirmed: false,
+  score: 0,
+  wrong: [],
+  timeLeft: 30 * 60,
+  timer: null,
+  reviewIndex: 0,
+};
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function startQuiz() {
+  state.questions = shuffle(QUESTIONS);
+  state.current = 0;
+  state.selected = null;
+  state.confirmed = false;
+  state.score = 0;
+  state.wrong = [];
+  state.timeLeft = 30 * 60;
+  state.screen = 'quiz';
+  clearInterval(state.timer);
+  state.timer = setInterval(() => {
+    state.timeLeft--;
+    if (state.timeLeft <= 0) { clearInterval(state.timer); state.screen = 'result'; render(); return; }
+    updateTimer();
+  }, 1000);
+  render();
+}
+
+function updateTimer() {
+  const el = document.getElementById('timer');
+  if (!el) return;
+  const m = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
+  const s = String(state.timeLeft % 60).padStart(2, '0');
+  el.textContent = '⏱ ' + m + ':' + s;
+  el.className = 'timer' + (state.timeLeft < 300 ? ' urgent' : '');
+}
+
+function selectOption(i) {
+  if (state.confirmed) return;
+  state.selected = i;
+  render();
+}
+
+function confirm() {
+  if (state.selected === null) return;
+  state.confirmed = true;
+  const q = state.questions[state.current];
+  if (state.selected === q.answer) state.score++;
+  else state.wrong.push({ ...q, chosen: state.selected });
+  render();
+}
+
+function next() {
+  state.current++;
+  if (state.current >= state.questions.length) {
+    clearInterval(state.timer);
+    state.screen = 'result';
+  } else {
+    state.selected = null;
+    state.confirmed = false;
+  }
+  render();
+}
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'start') app.innerHTML = renderStart();
+  else if (state.screen === 'quiz') app.innerHTML = renderQuiz();
+  else if (state.screen === 'result') app.innerHTML = renderResult();
+  else if (state.screen === 'review') app.innerHTML = renderReview();
+}
+
+function renderStart() {
+  return `<div class="start-screen">
+    <div class="start-icon">📝</div>
+    <h1 class="start-title">Ona tili va Adabiyot</h1>
+    <p class="start-subtitle">Davlat attestatsiya imtihoniga<br>tayyorgarlik testi.<br><strong>20 savol · 30 daqiqa</strong></p>
+    <div class="topics-box">
+      <div class="topic-row"><span>📌</span><span>Imlo va grammatika</span></div>
+      <div class="topic-row"><span>🔤</span><span>Morfologiya va sintaksis</span></div>
+      <div class="topic-row"><span>📚</span><span>Leksikologiya va fonetika</span></div>
+      <div class="topic-row"><span>✍️</span><span>O'zbek adabiyoti</span></div>
+      <div class="topic-row"><span>🎭</span><span>Adabiy san'atlar</span></div>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">Testni boshlash →</button>
+  </div>`;
+}
+
+function renderQuiz() {
+  const q = state.questions[state.current];
+  const pct = (state.current / state.questions.length) * 100;
+  const catColor = CATEGORY_COLORS[q.category] || '#888';
+  const m = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
+  const s = String(state.timeLeft % 60).padStart(2, '0');
+  const timerClass = state.timeLeft < 300 ? 'timer urgent' : 'timer';
+
+  const optionsHtml = q.options.map((opt, i) => {
+    let cls = 'option-btn';
+    let icon = '<span class="option-circle"></span>';
+    let textColor = '#cde4f0';
+    if (!state.confirmed && state.selected === i) {
+      cls += ' selected';
+      icon = '<span class="option-circle" style="background:#e8a020;border-color:#e8a020"></span>';
+    }
+    if (state.confirmed && i === q.answer) {
+      cls += ' correct';
+      icon = '<span class="option-circle" style="border:none;color:#2ecc71;font-size:16px">✓</span>';
+      textColor = '#a8f0c0';
+    }
+    if (state.confirmed && i === state.selected && i !== q.answer) {
+      cls += ' wrong';
+      icon = '<span class="option-circle" style="border:none;color:#e74c3c;font-size:16px">✗</span>';
+      textColor = '#f0a8a0';
+    }
+    return `<button class="${cls}" onclick="selectOption(${i})">
+      ${icon}
+      <span class="option-text" style="color:${textColor}">${opt}</span>
+    </button>`;
+  }).join('');
+
+  const explanationHtml = state.confirmed ? `
+    <div class="explanation">
+      <p>💡 <strong>Izoh:</strong> ${q.explanation}</p>
+    </div>` : '';
+
+  const actionBtn = !state.confirmed
+    ? `<button class="btn-confirm" onclick="confirm()" ${state.selected === null ? 'disabled' : ''}>Tasdiqlash</button>`
+    : `<button class="btn-next" onclick="next()">${state.current + 1 >= state.questions.length ? 'Natijani ko\'rish 🏁' : 'Keyingi savol →'}</button>`;
+
+  return `<div class="quiz-screen">
+    <div class="quiz-header">
+      <span class="q-counter">${state.current + 1} / ${state.questions.length}</span>
+      <span id="timer" class="${timerClass}">⏱ ${m}:${s}</span>
+      <span class="score-badge">✓ ${state.score}</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="card">
+      <span class="category-tag" style="background:${catColor}22;border:1px solid ${catColor}66;color:${catColor}">${q.category}</span>
+      <p class="question-text">${q.question}</p>
+      <div class="options">${optionsHtml}</div>
+      ${explanationHtml}
+      <div class="btn-row">${actionBtn}</div>
+    </div>
+  </div>`;
+}
+
+function renderResult() {
+  const total = state.questions.length;
+  const pct = Math.round((state.score / total) * 100);
+  const grade = pct >= 90 ? "A'lo 🏆" : pct >= 70 ? "Yaxshi 👍" : pct >= 50 ? "Qoniqarli 📖" : "Qoniqarsiz 💪";
+  const gradeColor = pct >= 90 ? '#27ae60' : pct >= 70 ? '#3498db' : pct >= 50 ? '#f39c12' : '#e74c3c';
+  const emoji = pct >= 70 ? '🎉' : '📚';
+  const m = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
+  const sc = String(state.timeLeft % 60).padStart(2, '0');
+  const reviewBtn = state.wrong.length > 0
+    ? `<button class="btn-review" onclick="openReview()">✗ Xatolarni ko'rish (${state.wrong.length} ta)</button>` : '';
+  return `<div class="result-screen">
+    <div class="result-emoji">${emoji}</div>
+    <h2 class="result-title">Test yakunlandi!</h2>
+    <div class="result-score" style="color:${gradeColor}">${state.score}/${total}</div>
+    <div class="result-grade" style="color:${gradeColor}">${grade} (${pct}%)</div>
+    <div class="stats-box">
+      <div class="stat"><div class="stat-num" style="color:#2ecc71">${state.score}</div><div class="stat-label">To'g'ri</div></div>
+      <div class="divider"></div>
+      <div class="stat"><div class="stat-num" style="color:#e74c3c">${total - state.score}</div><div class="stat-label">Xato</div></div>
+      <div class="divider"></div>
+      <div class="stat"><div class="stat-num" style="color:#e8a020">${m}:${sc}</div><div class="stat-label">Qolgan</div></div>
+    </div>
+    ${reviewBtn}
+    <button class="btn-restart" onclick="startQuiz()">🔄 Qaytadan boshlash</button>
+  </div>`;
+}
+
+function openReview() {
+  state.screen = 'review';
+  state.reviewIndex = 0;
+  render();
+}
+
+function renderReview() {
+  const w = state.wrong[state.reviewIndex];
+  const catColor = CATEGORY_COLORS[w.category] || '#888';
+  const optionsHtml = w.options.map((opt, i) => {
+    const isCorrect = i === w.answer;
+    const isChosen = i === w.chosen;
+    let cls = 'option-btn';
+    let icon = '<span class="option-circle"></span>';
+    let textColor = '#cde4f0';
+    if (isCorrect) { cls += ' correct'; icon = '<span class="option-circle" style="border:none;color:#2ecc71;font-size:16px">✓</span>'; textColor = '#a8f0c0'; }
+    if (isChosen && !isCorrect) { cls += ' wrong'; icon = '<span class="option-circle" style="border:none;color:#e74c3c;font-size:16px">✗</span>'; textColor = '#f0a8a0'; }
+    return `<button class="${cls}" style="cursor:default">
+      ${icon}<span class="option-text" style="color:${textColor}">${opt}</span>
+    </button>`;
+  }).join('');
+  const prevBtn = state.reviewIndex > 0 ? `<button class="btn-nav" onclick="reviewNav(-1)">← Oldingi</button>` : '<span></span>';
+  const nextBtn = state.reviewIndex < state.wrong.length - 1 ? `<button class="btn-nav" onclick="reviewNav(1)">Keyingi →</button>` : '<span></span>';
+  return `<div class="review-screen">
+    <div class="review-nav">
+      <button class="btn-back" onclick="state.screen='result';render()">← Natijaga qaytish</button>
+      <span style="color:var(--muted);font-size:13px">${state.reviewIndex + 1} / ${state.wrong.length}</span>
+    </div>
+    <div class="card">
+      <span class="category-tag" style="background:${catColor}22;border:1px solid ${catColor}66;color:${catColor}">${w.category}</span>
+      <p class="question-text">${w.question}</p>
+      <div class="options">${optionsHtml}</div>
+      <div class="explanation"><p>💡 <strong>Izoh:</strong> ${w.explanation}</p></div>
+      <div class="btn-row">${prevBtn}${nextBtn}</div>
+    </div>
+  </div>`;
+}
+
+function reviewNav(dir) {
+  state.reviewIndex += dir;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
+
