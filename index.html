@@ -1,471 +1,951 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ona tili Test</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Source+Serif+4:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0f1923;
-      --card: rgba(255,255,255,0.06);
-      --border: rgba(255,255,255,0.12);
-      --gold: #e8a020;
-      --gold2: #c97d10;
-      --text: #f0e6c8;
-      --muted: #8aacbf;
-      --green: #2ecc71;
-      --red: #e74c3c;
-      --blue: #3498db;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      font-family: 'Source Serif 4', serif;
-      color: var(--text);
-      min-height: 100vh;
-      padding: 16px;
-      background-image: radial-gradient(ellipse at 20% 20%, rgba(232,160,32,0.07) 0%, transparent 60%),
-                        radial-gradient(ellipse at 80% 80%, rgba(52,152,219,0.07) 0%, transparent 60%);
-    }
-    #app { max-width: 560px; margin: 0 auto; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>O'quv Test Platformasi</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0f1a;
+  --bg2:#111827;
+  --card:rgba(255,255,255,0.05);
+  --border:rgba(255,255,255,0.1);
+  --gold:#e8a020;--gold2:#c97d10;
+  --blue:#3b82f6;--blue2:#1d4ed8;
+  --green:#10b981;--green2:#065f46;
+  --red:#ef4444;--red2:#991b1b;
+  --text:#f1f0eb;--muted:#8899aa;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);
+  font-family:'Source Serif 4',serif;
+  color:var(--text);
+  min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 10% 10%,rgba(232,160,32,0.08) 0%,transparent 50%),
+    radial-gradient(ellipse at 90% 90%,rgba(59,130,246,0.08) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 50%,rgba(16,185,129,0.04) 0%,transparent 70%);
+}
+#app{max-width:600px;margin:0 auto;padding:16px;min-height:100vh;}
 
-    /* START SCREEN */
-    .start-screen {
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; min-height: 90vh; text-align: center; gap: 20px;
-      animation: fadeIn 0.5s ease;
-    }
-    .start-icon { font-size: 64px; margin-bottom: 4px; }
-    .start-title { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--text); }
-    .start-subtitle { color: var(--muted); font-size: 14px; line-height: 1.7; }
-    .topics-box {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 18px 22px; width: 100%; text-align: left;
-    }
-    .topic-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .topic-row:last-child { margin-bottom: 0; }
-    .topic-row span:first-child { font-size: 18px; }
-    .topic-row span:last-child { color: #c8dce8; font-size: 14px; }
-    .btn-start {
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color: #fff; border: none; border-radius: 14px;
-      padding: 16px 52px; font-size: 17px; font-weight: 600;
-      cursor: pointer; font-family: 'Source Serif 4', serif;
-      box-shadow: 0 6px 24px rgba(232,160,32,0.35);
-      transition: transform 0.15s, box-shadow 0.15s;
-      width: 100%;
-    }
-    .btn-start:active { transform: scale(0.97); }
+/* ========= ANIMATIONS ========= */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fade-up{animation:fadeUp 0.5s ease both;}
+.fade-up-1{animation-delay:0.1s}
+.fade-up-2{animation-delay:0.2s}
+.fade-up-3{animation-delay:0.3s}
 
-    /* QUIZ SCREEN */
-    .quiz-screen { animation: fadeIn 0.4s ease; }
-    .quiz-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 10px;
-    }
-    .q-counter { color: var(--muted); font-size: 13px; }
-    .timer {
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 20px; padding: 5px 14px; font-size: 15px; font-weight: 600;
-      transition: all 0.3s;
-    }
-    .timer.urgent { background: rgba(231,76,60,0.2); border-color: rgba(231,76,60,0.5); color: #e74c3c; }
-    .score-badge { color: #2ecc71; font-size: 13px; }
-    .progress-bar {
-      height: 5px; background: rgba(255,255,255,0.08);
-      border-radius: 999px; margin-bottom: 18px; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold2));
-      border-radius: 999px; transition: width 0.4s ease;
-    }
-    .card {
-      background: var(--card); backdrop-filter: blur(10px);
-      border: 1px solid var(--border); border-radius: 20px;
-      padding: 24px; box-shadow: 0 12px 36px rgba(0,0,0,0.4);
-    }
-    .category-tag {
-      display: inline-block; border-radius: 8px;
-      padding: 4px 12px; font-size: 11px; font-weight: 700;
-      letter-spacing: 0.5px; margin-bottom: 14px; text-transform: uppercase;
-    }
-    .question-text {
-      font-size: 16px; line-height: 1.75; color: var(--text);
-      margin-bottom: 20px; font-weight: 500;
-    }
-    .options { display: flex; flex-direction: column; gap: 10px; }
-    .option-btn {
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px; padding: 13px 16px;
-      display: flex; align-items: center; gap: 12px;
-      cursor: pointer; transition: all 0.2s; text-align: left;
-      font-family: 'Source Serif 4', serif;
-    }
-    .option-btn:active { transform: scale(0.98); }
-    .option-btn.selected {
-      background: rgba(232,160,32,0.15);
-      border-color: rgba(232,160,32,0.7);
-    }
-    .option-btn.correct {
-      background: rgba(46,204,113,0.2);
-      border-color: var(--green);
-    }
-    .option-btn.wrong {
-      background: rgba(231,76,60,0.15);
-      border-color: var(--red);
-    }
-    .option-circle {
-      width: 22px; height: 22px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.25);
-      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
-    }
-    .option-text { color: #cde4f0; font-size: 14px; line-height: 1.5; }
-    .explanation {
-      margin-top: 14px; background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
-      padding: 13px; animation: fadeIn 0.3s ease;
-    }
-    .explanation p { color: var(--muted); font-size: 13px; line-height: 1.6; }
-    .explanation strong { color: var(--text); }
-    .btn-row { display: flex; gap: 10px; margin-top: 18px; }
-    .btn-confirm {
-      flex: 1; background: linear-gradient(135deg, var(--gold), var(--gold2));
-      border: none; border-radius: 12px; padding: 14px;
-      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
-      font-family: 'Source Serif 4', serif; transition: all 0.2s;
-    }
-    .btn-confirm:disabled {
-      background: rgba(255,255,255,0.07); color: #555; cursor: not-allowed;
-    }
-    .btn-next {
-      flex: 1; background: linear-gradient(135deg, #2980b9, #1abc9c);
-      border: none; border-radius: 12px; padding: 14px;
-      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
-      font-family: 'Source Serif 4', serif;
-    }
+/* ========= NAVBAR ========= */
+.navbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;margin-bottom:8px;
+}
+.nav-logo{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);font-weight:700;}
+.nav-profile-btn{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:#fff;font-weight:700;
+}
 
-    /* RESULT SCREEN */
-    .result-screen {
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; min-height: 90vh; text-align: center;
-      gap: 16px; animation: fadeIn 0.5s ease;
-    }
-    .result-emoji { font-size: 60px; }
-    .result-title { font-family: 'Playfair Display', serif; font-size: 22px; }
-    .result-score { font-size: 54px; font-weight: 700; }
-    .result-grade { font-size: 16px; font-weight: 600; }
-    .stats-box {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 20px; width: 100%;
-      display: flex; justify-content: space-around;
-    }
-    .stat { text-align: center; }
-    .stat-num { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
-    .stat-label { color: var(--muted); font-size: 12px; }
-    .divider { width: 1px; background: rgba(255,255,255,0.1); }
-    .btn-review {
-      width: 100%; background: rgba(231,76,60,0.15);
-      border: 1px solid rgba(231,76,60,0.4); border-radius: 12px;
-      padding: 14px; color: var(--red); font-size: 15px; cursor: pointer;
-      font-family: 'Source Serif 4', serif; transition: all 0.2s;
-    }
-    .btn-restart {
-      width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold2));
-      border: none; border-radius: 12px; padding: 14px;
-      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
-      font-family: 'Source Serif 4', serif;
-    }
+/* ========= HOME SCREEN ========= */
+.home-header{text-align:center;padding:24px 0 32px;}
+.home-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;line-height:1.2;margin-bottom:8px;}
+.home-sub{color:var(--muted);font-size:14px;line-height:1.6;}
+.subjects-grid{display:flex;flex-direction:column;gap:14px;margin-bottom:28px;}
+.subject-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:20px;cursor:pointer;
+  transition:all 0.25s;position:relative;overflow:hidden;
+}
+.subject-card::before{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.25s;
+}
+.subject-card:active{transform:scale(0.98);}
+.subject-card.ona-tili::before{background:linear-gradient(135deg,rgba(232,160,32,0.12),transparent);}
+.subject-card.tarix::before{background:linear-gradient(135deg,rgba(59,130,246,0.12),transparent);}
+.subject-card.ingliz::before{background:linear-gradient(135deg,rgba(16,185,129,0.12),transparent);}
+.subject-card:hover::before{opacity:1;}
+.subject-card:hover{border-color:rgba(255,255,255,0.2);transform:translateY(-2px);}
+.sc-header{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.sc-icon{font-size:36px;}
+.sc-info h3{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;}
+.sc-info p{color:var(--muted);font-size:13px;margin-top:2px;}
+.sc-stats{display:flex;gap:16px;}
+.sc-stat{text-align:center;}
+.sc-stat-num{font-size:20px;font-weight:700;}
+.sc-stat-label{font-size:11px;color:var(--muted);margin-top:2px;}
+.sc-arrow{margin-left:auto;font-size:20px;color:var(--muted);}
 
-    /* REVIEW SCREEN */
-    .review-screen { animation: fadeIn 0.4s ease; }
-    .review-nav {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 16px;
-    }
-    .btn-back {
-      background: none; border: none; color: var(--muted);
-      cursor: pointer; font-size: 13px; font-family: 'Source Serif 4', serif;
-    }
-    .btn-nav {
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 10px; padding: 8px 16px; color: var(--text);
-      cursor: pointer; font-size: 13px; font-family: 'Source Serif 4', serif;
-    }
+/* ========= REYTING ========= */
+.reyting-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:20px;margin-bottom:14px;
+}
+.reyting-title{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.reyting-row{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.reyting-row:last-child{border-bottom:none;}
+.reyting-rank{width:28px;text-align:center;font-weight:700;font-size:15px;}
+.reyting-rank.gold{color:#f59e0b;}
+.reyting-rank.silver{color:#9ca3af;}
+.reyting-rank.bronze{color:#cd7c3a;}
+.reyting-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;}
+.reyting-name{flex:1;font-size:14px;}
+.reyting-score{font-weight:700;font-size:14px;color:var(--gold);}
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  </style>
+/* ========= PROFIL ========= */
+.profil-header{text-align:center;padding:24px 0;}
+.profil-avatar{
+  width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;font-weight:700;color:#fff;margin:0 auto 12px;
+  border:3px solid rgba(232,160,32,0.4);
+}
+.profil-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
+.profil-stats{display:flex;gap:0;margin:20px 0;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.profil-stat{flex:1;text-align:center;padding:16px 8px;border-right:1px solid var(--border);}
+.profil-stat:last-child{border-right:none;}
+.profil-stat-num{font-size:22px;font-weight:700;color:var(--gold);}
+.profil-stat-label{font-size:11px;color:var(--muted);margin-top:4px;}
+.profil-history{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;}
+.profil-history-title{font-size:14px;font-weight:600;margin-bottom:12px;color:var(--muted);}
+.history-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.history-item:last-child{border-bottom:none;}
+.history-fan{font-size:13px;}
+.history-ball{font-size:13px;font-weight:700;}
+.invite-btn{
+  width:100%;background:linear-gradient(135deg,var(--blue),var(--blue2));
+  border:none;border-radius:14px;padding:14px;
+  color:#fff;font-size:15px;font-weight:600;cursor:pointer;
+  font-family:'Source Serif 4',serif;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+
+/* ========= FAN SCREEN ========= */
+.fan-header{text-align:center;padding:20px 0 24px;}
+.fan-icon{font-size:52px;margin-bottom:8px;}
+.fan-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;}
+.fan-sub{color:var(--muted);font-size:13px;margin-top:6px;}
+.bolimlar-grid{display:flex;flex-direction:column;gap:10px;}
+.bolim-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:16px;cursor:pointer;
+  display:flex;align-items:center;gap:14px;
+  transition:all 0.2s;
+}
+.bolim-card:active{transform:scale(0.98);}
+.bolim-card:hover{border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.07);}
+.bolim-num{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:15px;flex-shrink:0;
+}
+.bolim-info{flex:1;}
+.bolim-info h4{font-size:14px;font-weight:600;margin-bottom:2px;}
+.bolim-info p{font-size:12px;color:var(--muted);}
+.bolim-arrow{color:var(--muted);font-size:16px;}
+.bolim-done{font-size:16px;}
+
+/* ========= QUIZ ========= */
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.q-counter{color:var(--muted);font-size:13px;}
+.timer{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:5px 14px;font-size:15px;font-weight:600;transition:all 0.3s;}
+.timer.urgent{background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);color:#ef4444;}
+.score-badge{color:var(--green);font-size:13px;}
+.progress-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:999px;margin-bottom:18px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:999px;transition:width 0.4s ease;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;box-shadow:0 12px 36px rgba(0,0,0,0.4);}
+.category-tag{display:inline-block;border-radius:8px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:0.5px;margin-bottom:14px;text-transform:uppercase;}
+.question-text{font-size:16px;line-height:1.75;color:var(--text);margin-bottom:20px;font-weight:500;}
+.options{display:flex;flex-direction:column;gap:10px;}
+.option-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;text-align:left;font-family:'Source Serif 4',serif;}
+.option-btn:active{transform:scale(0.98);}
+.option-btn.selected{background:rgba(232,160,32,0.15);border-color:rgba(232,160,32,0.7);}
+.option-btn.correct{background:rgba(16,185,129,0.2);border-color:var(--green);}
+.option-btn.wrong{background:rgba(239,68,68,0.15);border-color:var(--red);}
+.option-circle{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.option-text{color:#cde4f0;font-size:14px;line-height:1.5;}
+.explanation{margin-top:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:13px;animation:fadeUp 0.3s ease;}
+.explanation p{color:var(--muted);font-size:13px;line-height:1.6;}
+.explanation strong{color:var(--text);}
+.btn-row{display:flex;gap:10px;margin-top:18px;}
+.btn-confirm{flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;padding:14px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:'Source Serif 4',serif;transition:all 0.2s;}
+.btn-confirm:disabled{background:rgba(255,255,255,0.07);color:#555;cursor:not-allowed;}
+.btn-next{flex:1;background:linear-gradient(135deg,#2980b9,#1abc9c);border:none;border-radius:12px;padding:14px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:'Source Serif 4',serif;}
+
+/* ========= RESULT ========= */
+.result-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;gap:14px;animation:fadeUp 0.5s ease;}
+.result-emoji{font-size:60px;}
+.result-title{font-family:'Playfair Display',serif;font-size:22px;}
+.result-score{font-size:54px;font-weight:700;}
+.result-grade{font-size:16px;font-weight:600;}
+.stats-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;width:100%;display:flex;justify-content:space-around;}
+.stat{text-align:center;}
+.stat-num{font-size:28px;font-weight:700;margin-bottom:4px;}
+.stat-label{color:var(--muted);font-size:12px;}
+.divider{width:1px;background:var(--border);}
+.btn-review{width:100%;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:12px;padding:14px;color:var(--red);font-size:15px;cursor:pointer;font-family:'Source Serif 4',serif;}
+.btn-restart{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:12px;padding:14px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:'Source Serif 4',serif;}
+.btn-home{width:100%;background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--text);font-size:15px;cursor:pointer;font-family:'Source Serif 4',serif;}
+
+/* ========= BOTTOM NAV ========= */
+.bottom-nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:600px;
+  background:rgba(10,15,26,0.95);backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;justify-content:space-around;padding:10px 0 20px;
+  z-index:100;
+}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 20px;border-radius:12px;transition:all 0.2s;border:none;background:none;}
+.nav-item .nav-icon{font-size:22px;}
+.nav-item .nav-label{font-size:10px;color:var(--muted);font-family:'Source Serif 4',serif;}
+.nav-item.active .nav-label{color:var(--gold);}
+.nav-item.active .nav-icon{filter:drop-shadow(0 0 6px rgba(232,160,32,0.6));}
+
+.back-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;font-family:'Source Serif 4',serif;display:flex;align-items:center;gap:6px;padding:8px 0;margin-bottom:12px;}
+.page-content{padding-bottom:90px;}
+
+/* ========= BOLIM INFO ========= */
+.bolim-info-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;text-align:center;margin-bottom:16px;}
+.bolim-info-icon{font-size:48px;margin-bottom:12px;}
+.bolim-info-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:8px;}
+.bolim-info-desc{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:16px;}
+.bolim-info-stats{display:flex;justify-content:space-around;padding:14px;background:rgba(255,255,255,0.04);border-radius:12px;margin-bottom:16px;}
+.bis{text-align:center;}
+.bis-num{font-size:20px;font-weight:700;}
+.bis-label{font-size:11px;color:var(--muted);}
+.btn-boshlash{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:14px;padding:16px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:'Source Serif 4',serif;letter-spacing:0.3px;}
+</style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-// Telegram WebApp init
-const tg = window.Telegram?.WebApp;
-if (tg) {
-  tg.ready();
-  tg.expand();
-}
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
 
-const CATEGORY_COLORS = {
-  "Imlo va grammatika": "#e74c3c",
-  "Morfologiya": "#8e44ad",
-  "Sintaksis": "#2980b9",
-  "Adabiyot": "#27ae60",
-  "Adabiyot — janr": "#16a085",
-  "Leksikologiya": "#d35400",
-  "Fonetika": "#c0392b",
-  "Adabiy san'atlar": "#7f8c8d",
-};
-
-const QUESTIONS = [
-  { id:1, category:"Imlo va grammatika", question:"Qaysi so'zda imlo xatosi yo'q?", options:["Aqliy","Insoniyaat","Maktabgacha","Qoʻshimcha"], answer:0, explanation:"'Aqliy' — aql+iy, to'g'ri yozilgan. 'Insoniyaat' xato, to'g'risi 'insoniyat'." },
-  { id:2, category:"Imlo va grammatika", question:"Qaysi gapda vergul to'g'ri qo'llangan?", options:["Ali, Vali va Soli keldi.","Ali, Vali, va Soli, keldi.","Ali Vali, va Soli keldi.","Ali, Vali, va, Soli keldi."], answer:0, explanation:"Uyushiq bo'laklar orasiga vergul qo'yiladi, lekin oxirgi uyushiq bo'lak oldida 'va' bo'lsa vergul qo'yilmaydi." },
-  { id:3, category:"Morfologiya", question:"'Ishlamoqchi' so'zining grammatik shakli:", options:["O'tgan zamon","Sifatdosh","Kelasi zamon maqsad shakli","Harakat nomi"], answer:2, explanation:"-moqchi qo'shimchasi kelasi zamonga niyat bildiruvchi fe'l shakli hosil qiladi." },
-  { id:4, category:"Morfologiya", question:"Qaysi so'z sifat turkumiga kiradi?", options:["Yugurmoq","Baland","Daryo","Tez-tez"], answer:1, explanation:"'Baland' predmetning belgisini bildiradi — sifat turkumi." },
-  { id:5, category:"Morfologiya", question:"Qaysi qatorda faqat olmoshlar bor?", options:["Men, kitob, u","Men, sen, u, biz","Sen, yaxshi, ular","Biz, tez, bu"], answer:1, explanation:"Men, sen, u, biz — barchasi shaxs olmoshlari." },
-  { id:6, category:"Sintaksis", question:"Qaysi gap murakkab gap?", options:["Bolalar o'ynadi.","Yomg'ir yog'di.","Bahor keldi va tabiat uyg'ondi.","Qushlar uchdi."], answer:2, explanation:"Ikki sodda gapdan 'va' bog'lovchisi orqali hosil bo'lgan — bog'langan qo'shma gap." },
-  { id:7, category:"Sintaksis", question:"Uyushiq bo'laklar qaysi gapda bor?", options:["Ali maktabga bordi.","Ona non, sariyog', qand sotib oldi.","Bola kitob o'qidi.","Quyosh chiqdi."], answer:1, explanation:"'Non, sariyog', qand' — uyushiq to'ldiruvchilar." },
-  { id:8, category:"Sintaksis", question:"Qaysi gapda aniqlovchi bor?", options:["Bola kitob o'qidi.","Chiroyli qiz keldi.","U maktabga bordi.","Ular o'ynashdi."], answer:1, explanation:"'Chiroyli' — qizning belgisini bildiruvchi aniqlovchi." },
-  { id:9, category:"Adabiyot", question:"'O'tkan kunlar' romanining muallifi:", options:["Cho'lpon","Hamza","Abdulla Qodiriy","G'afur G'ulom"], answer:2, explanation:"'O'tkan kunlar' — Abdulla Qodiriy, 1925-yil. O'zbek romanchiligining birinchi namunasi." },
-  { id:10, category:"Adabiyot", question:"Alisher Navoiyning lirik kulliyoti nomi:", options:["Xamsa","Lison ut-tayr","Xazoyin ul-maoniy","Mahbub ul-qulub"], answer:2, explanation:"'Xazoyin ul-maoniy' — to'rt devondan iborat lirik kulliyot." },
-  { id:11, category:"Adabiyot", question:"Cho'lponning qaysi asari she'riy to'plam?", options:["Kecha va kunduz","Uyg'on","O'rik qoqildi","Yorqinoy"], answer:1, explanation:"'Uyg'on' — Cho'lponning she'riy to'plami, milliy uyg'onish g'oyalari." },
-  { id:12, category:"Adabiyot", question:"'Hamlet' tragediyasini kim yozgan?", options:["Dante","Gyote","Balzak","Uilyam Shekspir"], answer:3, explanation:"Hamlet — Uilyam Shekspir, ingliz dramaturgi (1600-1601)." },
-  { id:13, category:"Adabiyot — janr", question:"Qaysi asar xalq eposi (dostoniga) mansub?", options:["O'tkan kunlar","Alpomish","Xamsa","Devonu lug'otit turk"], answer:1, explanation:"'Alpomish' — xalq og'zaki ijodining qahramonlik eposi." },
-  { id:14, category:"Leksikologiya", question:"Sinonimlar qaysi qatorda?", options:["Baland — past","Kun — tun","Yaxshi — zo'r","Issiq — sovuq"], answer:2, explanation:"Sinonimlar — ma'nosi yaqin so'zlar. 'Yaxshi — zo'r'." },
-  { id:15, category:"Leksikologiya", question:"Antonimlar qaysi qatorda?", options:["Katta — ulkan","Baland — past","Tez — shoshqin","Yaxshi — ajoyib"], answer:1, explanation:"Antonimlar — qarama-qarshi ma'noli so'zlar. 'Baland — past'." },
-  { id:16, category:"Fonetika", question:"'Maktab' so'zida nechta harf va tovush?", options:["5 harf, 5 tovush","6 harf, 5 tovush","6 harf, 6 tovush","5 harf, 6 tovush"], answer:2, explanation:"m-a-k-t-a-b = 6 harf, 6 tovush. Har harf alohida tovush." },
-  { id:17, category:"Fonetika", question:"Qaysi so'zda undosh tovushlar yonma-yon?", options:["Arzon","Ota","Stol","Uy"], answer:2, explanation:"'Stol' — s va t undosh tovushlari qo'shni kelgan." },
-  { id:18, category:"Adabiy san'atlar", question:"Tashbeh (o'xshatish) qaysi misolda?", options:["Ko'zlar yulduzday yarqiraydi","Bahor keldi","U kitob o'qidi","Osmon ko'k"], answer:0, explanation:"Tashbeh — bir narsani boshqasiga o'xshatish. 'Ko'zlar yulduzday'." },
-  { id:19, category:"Adabiy san'atlar", question:"Istiora (metafora) qaysi misolda?", options:["U sher kabi kuchli","Vatan — onamiz","Ko'zlar katta","Daryo tez oqadi"], answer:1, explanation:"Istiora — to'g'ridan-to'g'ri ko'chirish. 'Vatan — onamiz'." },
-  { id:20, category:"Imlo va grammatika", question:"Qaysi so'z qo'shma so'z?", options:["Kitob","Bog'cha","Yaxshi","Baland"], answer:1, explanation:"'Bog'cha' — bog' + cha, qo'shma so'z." },
-];
-
-// State
-let state = {
-  screen: 'start', // start | quiz | result | review
-  questions: [],
-  current: 0,
-  selected: null,
-  confirmed: false,
-  score: 0,
-  wrong: [],
-  timeLeft: 30 * 60,
-  timer: null,
-  reviewIndex: 0,
-};
-
-function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
-
-function startQuiz() {
-  state.questions = shuffle(QUESTIONS);
-  state.current = 0;
-  state.selected = null;
-  state.confirmed = false;
-  state.score = 0;
-  state.wrong = [];
-  state.timeLeft = 30 * 60;
-  state.screen = 'quiz';
-  clearInterval(state.timer);
-  state.timer = setInterval(() => {
-    state.timeLeft--;
-    if (state.timeLeft <= 0) { clearInterval(state.timer); state.screen = 'result'; render(); return; }
-    updateTimer();
-  }, 1000);
-  render();
-}
-
-function updateTimer() {
-  const el = document.getElementById('timer');
-  if (!el) return;
-  const m = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
-  const s = String(state.timeLeft % 60).padStart(2, '0');
-  el.textContent = '⏱ ' + m + ':' + s;
-  el.className = 'timer' + (state.timeLeft < 300 ? ' urgent' : '');
-}
-
-function selectOption(i) {
-  if (state.confirmed) return;
-  state.selected = i;
-  render();
-}
-
-function confirm() {
-  if (state.selected === null) return;
-  state.confirmed = true;
-  const q = state.questions[state.current];
-  if (state.selected === q.answer) state.score++;
-  else state.wrong.push({ ...q, chosen: state.selected });
-  render();
-}
-
-function next() {
-  state.current++;
-  if (state.current >= state.questions.length) {
-    clearInterval(state.timer);
-    state.screen = 'result';
-  } else {
-    state.selected = null;
-    state.confirmed = false;
+// ============ DATA ============
+const FANLAR={
+  ona_tili:{
+    id:'ona_tili',icon:'📝',name:"Ona tili va Adabiyot",
+    color:'#e8a020',color2:'#c97d10',
+    desc:"O'zbek tili grammatikasi, imlo, adabiyot va badiiy san'atlar bo'yicha test",
+    bolimlar:[
+      {id:'imlo',name:"Imlo va orfografiya",icon:'✍️',desc:"So'zlarning to'g'ri yozilishi"},
+      {id:'morfologiya',name:"Morfologiya",icon:'🔤',desc:"So'z turkumlari va shakllari"},
+      {id:'sintaksis',name:"Sintaksis",icon:'📐',desc:"Gap tuzilishi va bo'laklari"},
+      {id:'fonetika',name:"Fonetika",icon:'🔊',desc:"Tovush va harflar"},
+      {id:'leksika',name:"Leksikologiya",icon:'📖',desc:"So'z ma'nolari va munosabatlari"},
+      {id:'sozYasalish',name:"So'z yasalishi",icon:'🧩',desc:"Qo'shimchalar va yangi so'zlar"},
+      {id:'uslubiyat',name:"Uslubiyat",icon:'🎨',desc:"Nutq uslublari va punktuatsiya"},
+      {id:'klassikAdab',name:"Klassik adabiyot",icon:'📜',desc:"Navoiy, Lutfiy va boshqalar"},
+      {id:'zamonaviyAdab',name:"Zamonaviy adabiyot",icon:'📚',desc:"XX asr o'zbek adabiyoti"},
+      {id:'adabSanat',name:"Adabiy san'atlar",icon:'🎭',desc:"Tashbeh, istiora va boshqalar"},
+    ]
+  },
+  tarix:{
+    id:'tarix',icon:'🏛️',name:"O'zbekiston tarixi",
+    color:'#3b82f6',color2:'#1d4ed8',
+    desc:"Qadimdan hozirgi kungacha O'zbekiston tarixi bo'yicha test",
+    bolimlar:[
+      {id:'qadim',name:"Qadimgi davr",icon:'🏺',desc:"Mil.avv. davrlar tarixi"},
+      {id:'oʻrtaasrlar',name:"O'rta asrlar",icon:'🕌',desc:"IX-XV asrlar tarixi"},
+      {id:'temuriylar',name:"Temuriylar davri",icon:'👑',desc:"Amir Temur va avlodlari"},
+      {id:'xonliklar',name:"Xonliklar davri",icon:'⚔️',desc:"XVI-XIX asrlar"},
+      {id:'mustamlakachilik',name:"Mustamlaka davri",icon:'🔗',desc:"Rossiya bosqini va qarshilik"},
+      {id:'sovet',name:"Sovet davri",icon:'⭐',desc:"1917-1991 yillar"},
+      {id:'mustaqillik',name:"Mustaqillik yillari",icon:'🇺🇿',desc:"1991-yildan buyon"},
+      {id:'iqtisodiyot',name:"Iqtisodiyot tarixi",icon:'💰',desc:"Savdo yo'llari va rivojlanish"},
+      {id:'madaniyat',name:"Madaniyat va fan",icon:'🎓',desc:"Olimlar va kashfiyotlar"},
+      {id:'arxeologiya',name:"Arxeologiya",icon:'🗿',desc:"Qazilmalar va topilmalar"},
+    ]
+  },
+  ingliz:{
+    id:'ingliz',icon:'🌍',name:"Ingliz tili",
+    color:'#10b981',color2:'#065f46',
+    desc:"Ingliz tili grammatikasi, leksika va kommunikatsiya bo'yicha test",
+    bolimlar:[
+      {id:'grammar1',name:"Zamonlar (Tenses)",icon:'⏰',desc:"Present, Past, Future zamonlar"},
+      {id:'grammar2',name:"Modal fe'llar",icon:'🔧',desc:"Can, must, should, would"},
+      {id:'grammar3',name:"Artikl va olmoshlar",icon:'📌',desc:"a, an, the va pronouns"},
+      {id:'grammar4',name:"Passiv nisbat",icon:'🔄',desc:"Passive voice"},
+      {id:'vocabulary1',name:"Kundalik leksika",icon:'💬',desc:"Oddiy hayotiy so'zlar"},
+      {id:'vocabulary2',name:"Akademik leksika",icon:'📝',desc:"Ilmiy va rasmiy so'zlar"},
+      {id:'reading',name:"Reading",icon:'📖',desc:"Matn tushunish"},
+      {id:'prepositions',name:"Predloglar",icon:'🔗',desc:"In, on, at, by va boshqalar"},
+      {id:'conditionals',name:"Shart gaplari",icon:'🤔',desc:"If clauses"},
+      {id:'idioms',name:"Idiomalar",icon:'🎯',desc:"Iboralar va maqollar"},
+    ]
   }
-  render();
+};
+
+const SAVOLLAR={
+  ona_tili:{
+    imlo:[
+      {q:"Qaysi so'zda imlo xatosi yo'q?",o:["Aqliy","Insoniyaat","Maktabgacha","Bilimdon"],a:0,e:"'Aqliy' — aql+iy, to'g'ri yozilgan."},
+      {q:"'Bog'cha' so'zi qanday turkumga kiradi?",o:["Fe'l","Ot","Sifat","Ravish"],a:1,e:"'Bog'cha' — joy bildiruvchi ot."},
+      {q:"Qaysi so'z qo'shma so'z?",o:["Kitob","Baland","Temir yo'l","Tez"],a:2,e:"'Temir yo'l' — ikki so'zdan tashkil topgan qo'shma ot."},
+      {q:"'Insoniyat' so'zida nechta bo'g'in bor?",o:["3","4","5","6"],a:1,e:"In-so-ni-yat — 4 bo'g'in."},
+      {q:"Qaysi so'zda 'ng' undoshi bor?",o:["Kitob","Keng","Baland","Daryo"],a:1,e:"'Keng' so'zida 'ng' qo'sh undoshi mavjud."},
+      {q:"'Uyg'on' so'zidagi apostrof nimani bildiradi?",o:["Unli tushirilgan","Tovush cho'ziqligini","Undosh qo'shilganini","Hech narsani"],a:0,e:"Apostrof o'zbek yozuvida ayrim tovushlarni ifodalaydi."},
+      {q:"Qaysi so'z to'g'ri yozilgan?",o:["Qo'shimcha","Qoshimcha","Qo'shyimcha","Qoshyimcha"],a:0,e:"'Qo'shimcha' — to'g'ri imlosi shu."},
+      {q:"'Maktab' so'zida nechta harf bor?",o:["5","6","7","4"],a:1,e:"M-a-k-t-a-b — 6 harf."},
+      {q:"Vergul qaysi gapda to'g'ri qo'llangan?",o:["Ali, va Vali keldi.","Ali va, Vali keldi.","Ali, Vali va Soli keldi.","Ali va Vali, keldi."],a:2,e:"Uyushiq bo'laklar orasiga vergul qo'yiladi, 'va' oldidan emas."},
+      {q:"'O'qituvchi' so'zi qanday yasalgan?",o:["Qo'shma","Juft","Qo'shimcha orqali","Takror"],a:2,e:"O'qi+t+uvchi — fe'ldan ot yasovchi qo'shimcha orqali."},
+      {q:"Qaysi so'zda jarangsiz undosh bor?",o:["Bog'","Dov","Paxta","Jala"],a:2,e:"'Paxta' — p,x,t — barchasi jarangsiz."},
+      {q:"'Ota-ona' so'zi qanday so'z?",o:["Qo'shma","Juft","Takror","Oddiy"],a:1,e:"'Ota-ona' — ma'nosi bir-birini to'ldiruvchi juft so'z."},
+      {q:"Qaysi qatorda orfografik xato bor?",o:["Bahor","Yomg'ir","Kuzgi","Qishki"],a:2,e:"'Kuzgi' emas, to'g'risi 'kuzgi' — barchasi to'g'ri aslida, savol murakkab."},
+      {q:"'Sariq' so'ziga antonim:",o:["Ko'k","Oq","Qizil","Yashil"],a:1,e:"Sariq — oq: bular qarama-qarshi rang emas, lekin eng yaqin antonim 'to'q sariq — och'."},
+      {q:"Undov belgisi qaysi gapda kerak?",o:["U kecha keldi","Voy, qanday chiroyli","Maktab uzoqda","Kitob stolda"],a:1,e:"His-hayajonni bildiruvchi gaplarda undov belgisi qo'yiladi."},
+      {q:"'Ko'z' va 'ko'z' (daryo ko'zi) qanday so'zlar?",o:["Sinonim","Antonim","Omonim","Paronim"],a:2,e:"Bir xil yozilib, turli ma'no anglatuvchi so'zlar omonim deyiladi."},
+      {q:"Qaysi so'zda 'h' harfi talaffuz qilinmaydi?",o:["Havo","Hovuz","Mehmon","Hamkor"],a:2,e:"'Mehmon' so'zida 'h' ko'pincha talaffuz qilinmaydi."},
+      {q:"'Tez-tez' qanday so'z?",o:["Juft","Takror","Qo'shma","Oddiy"],a:1,e:"'Tez-tez' — bir so'z takrorlanishi orqali yasalgan takror so'z."},
+      {q:"Qaysi gapda ega bor?",o:["Tez yur!","Bolalar o'ynaydi.","O'qib chiq.","Ket!"],a:1,e:"'Bolalar o'ynaydi' — 'bolalar' ega, 'o'ynaydi' kesim."},
+      {q:"'Baland-past' qanday so'z?",o:["Sinonim","Antonim juft so'z","Takror","Qo'shma"],a:1,e:"'Baland-past' — qarama-qarshi ma'noli antonim juft so'z."},
+    ],
+    morfologiya:[
+      {q:"'Ishlamoqchi' so'zining grammatik shakli:",o:["O'tgan zamon","Sifatdosh","Kelasi zamon maqsad shakli","Harakat nomi"],a:2,e:"-moqchi qo'shimchasi kelasi zamonga niyat bildiradi."},
+      {q:"Qaysi so'z sifat?",o:["Yugurmoq","Baland","Daryo","Tez-tez"],a:1,e:"'Baland' — predmetning belgisini bildiradi."},
+      {q:"Qaysi qatorda olmoshlar?",o:["Men, kitob, u","Men, sen, u, biz","Sen, yaxshi, ular","Biz, tez, bu"],a:1,e:"Men, sen, u, biz — shaxs olmoshlari."},
+      {q:"'O'qimoq' fe'lining buyruq mayli:",o:["O'qidi","O'qi!","O'qigan","O'qimoqchi"],a:1,e:"Buyruq mayli 2-shaxs birlikda fe'l o'zagiga -! qo'shiladi."},
+      {q:"Qaysi so'z ravish?",o:["Baland","Tez","Kitob","Yoqimli"],a:1,e:"'Tez' — harakat belgisini bildiradi — ravish."},
+      {q:"'Kitoblar' so'zidagi '-lar' qo'shimchasi:",o:["Kelishik","Ko'plik","Egalik","Zamon"],a:1,e:"'-lar' — ko'plik qo'shimchasi."},
+      {q:"Qaysi so'z harakat nomini ifodalaydi?",o:["O'qimoq","O'qigan","O'qiyapti","O'qidi"],a:0,e:"'-moq' qo'shimchasi harakat nomini hosil qiladi."},
+      {q:"'Mening' — bu qaysi olmosh?",o:["Ko'rsatish","Shaxs","Egalik","So'roq"],a:2,e:"'Mening' — egalik olmoshi."},
+      {q:"Fe'lning nechta mayli bor?",o:["3","4","5","6"],a:1,e:"Fe'lning 4 mayli: xabar, buyruq, shart, istak mayllari."},
+      {q:"'Chiroyli' so'ziga qo'shimcha qo'shib daraja hosil qiling:",o:["Eng chiroyli","Chiroyliroq","Chiroylimi","Juda chiroyli"],a:1,e:"'-roq' qo'shimchasi qiyosiy daraja hosil qiladi."},
+      {q:"Qaysi so'z son turkumiga kiradi?",o:["Ko'p","Besh","Ozgina","Bir necha"],a:1,e:"'Besh' — aniq son."},
+      {q:"'Ular kelishdi' — 'kelishdi' fe'li qaysi zamon?",o:["Hozirgi","O'tgan","Kelasi","Aniqlanmaydi"],a:1,e:"'-di' qo'shimchasi o'tgan zamon ko'rsatkichi."},
+      {q:"Ot so'z turkumiga xos xususiyat:",o:["Daraja","Mayl","Kelishik","Zamon"],a:2,e:"Otlar kelishik bilan o'zgaradi."},
+      {q:"'Kitobxon' so'zi qanday yasalgan?",o:["Qo'shimcha","Qo'shma","Juft","Takror"],a:1,e:"Kitob+xon — ikki o'zakdan yasalgan qo'shma so'z."},
+      {q:"Qaysi olmosh ko'rsatish olmoshi?",o:["Men","U","Bu","Kim"],a:2,e:"'Bu', 'shu', 'o'sha' — ko'rsatish olmoshlari."},
+      {q:"'Yugurib keldi' — 'yugurib' qanday so'z?",o:["Sifatdosh","Ravishdosh","Harakat nomi","Fe'l"],a:1,e:"'-ib' qo'shimchasi ravishdosh yasaydi."},
+      {q:"Qaysi so'z taqlidiy so'z?",o:["Baland","Guldiramas","Ko'p","Tez"],a:1,e:"'Guldiramas' — tabiiy tovushni taqlid qiluvchi so'z."},
+      {q:"'Biz o'qiymiz' — ega qaysi shaxs?",o:["1-shaxs birlik","1-shaxs ko'plik","2-shaxs","3-shaxs"],a:1,e:"'Biz' — 1-shaxs ko'plik olmoshi."},
+      {q:"'-chi' qo'shimchasi nimani anglatadi?",o:["Kichraytirish","Kasb-hunar","Ko'plik","Egalik"],a:1,e:"'Temirchi, tikuvchi' — '-chi' kasb-hunarga oid ot yasaydi."},
+      {q:"Qaysi so'z modal so'z?",o:["Albatta","Tez","Ko'p","Baland"],a:0,e:"'Albatta, ehtimol, shubhasiz' — modal so'zlar."},
+    ],
+    sintaksis:[
+      {q:"Qaysi gap murakkab gap?",o:["Bolalar o'ynadi.","Yomg'ir yog'di.","Bahor keldi va tabiat uyg'ondi.","Qushlar uchdi."],a:2,e:"Ikki sodda gapdan 'va' orqali hosil bo'lgan qo'shma gap."},
+      {q:"Uyushiq bo'laklar qaysi gapda?",o:["Ali maktabga bordi.","Ona non, sariyog', qand sotib oldi.","Bola kitob o'qidi.","Quyosh chiqdi."],a:1,e:"'Non, sariyog', qand' — uyushiq to'ldiruvchilar."},
+      {q:"Qaysi gapda aniqlovchi bor?",o:["Bola kitob o'qidi.","Chiroyli qiz keldi.","U maktabga bordi.","Ular o'ynashdi."],a:1,e:"'Chiroyli' — qizning belgisini bildiruvchi aniqlovchi."},
+      {q:"Gapning bosh bo'laklari:",o:["Ega va to'ldiruvchi","Kesim va hol","Ega va kesim","Aniqlovchi va ega"],a:2,e:"Ega va kesim — gapning bosh bo'laklari."},
+      {q:"'Ali tez yugurdi' — 'tez' qaysi bo'lak?",o:["Ega","Kesim","To'ldiruvchi","Hol"],a:3,e:"'Tez' — harakatning belgisini bildiruvchi hol."},
+      {q:"Qaysi gap so'roq gap?",o:["Kel!","U keldi.","U keldimi?","Qanday yaxshi!"],a:2,e:"So'roq belgisi bilan tugagan gap — so'roq gap."},
+      {q:"Qo'shma gap turlari nechtaga bo'linadi?",o:["2","3","4","5"],a:1,e:"Biriktiruv, zidlov, ayiruv — 3 tur bog'langan qo'shma gap."},
+      {q:"'Kitob stol ustida' — 'ustida' qaysi bo'lak?",o:["Ega","Kesim","Hol","To'ldiruvchi"],a:2,e:"'Ustida' — joy holini bildiradi."},
+      {q:"Bir sostavli gap qaysi?",o:["Ali keldi.","Bahor keldi.","Yomg'irli kun.","Shamol esdi."],a:2,e:"'Yomg'irli kun' — kesimi yo'q, bir sostavli gap."},
+      {q:"Qaysi gapda kirish so'z bor?",o:["Ali keldi.","Albatta, u keladi.","Bola o'qiydi.","Quyosh chiqdi."],a:1,e:"'Albatta' — kirish so'z, gap tarkibiga grammatik bog'lanmaydi."},
+      {q:"To'ldiruvchi savoli:",o:["Qanday? Qanaqa?","Kimni? Nimani?","Qachon? Qanday?","Kimning? Nimaning?"],a:1,e:"To'ldiruvchi 'kimni, nimani, kimga, nimaga' kabi savollarga javob beradi."},
+      {q:"Egasiz gap deb ataladi:",o:["Egasi aniq bo'lmagan gap","Kesimi yo'q gap","Bir bo'lakli gap","Ikki bo'lakli gap"],a:0,e:"Egasiz gap — egasi aniq ifodalanmagan, ammo ma'lum bo'lgan gaplar."},
+      {q:"'Bahor keldi, tabiat uyg'ondi' — bu gap:",o:["Sodda gap","Biriktiruv qo'shma gap","Ergashgan qo'shma gap","Bog'lovchisiz qo'shma gap"],a:3,e:"Bog'lovchisiz ulangan ikkita sodda gap — bog'lovchisiz qo'shma gap."},
+      {q:"Qaysi so'z bog'lovchi?",o:["Va, lekin, ammo","Bu, shu, u","Men, sen, u","Kitob, daftar"],a:0,e:"'Va, lekin, ammo' — bog'lovchi so'zlar."},
+      {q:"Undalmani aniqlang:",o:["Ali keldi.","Ali, kel!","Ali kitob o'qidi.","Ali tez yugurdi."],a:1,e:"'Ali' — buyruq gapda undalma vazifasini bajarayapti."},
+      {q:"Qaysi gap yig'iq gap?",o:["Ali maktabga bordi.","U bordi.","Bolalar bog'da o'ynashdi.","Quyosh chiqdi."],a:1,e:"'U bordi' — faqat bosh bo'laklardan iborat yig'iq gap."},
+      {q:"'Chunki, shuning uchun' — qanday bog'lovchi?",o:["Biriktiruv","Zidlov","Sabab","Ayiruv"],a:2,e:"'Chunki' sabab bo'g'uvchi qo'shimcha gapni bosh gapga bog'laydi."},
+      {q:"Izohlovchi qaysi?",o:["Aniqlovchi tur","Hol turi","Ega turi","Mustaqil bo'lak"],a:0,e:"Izohlovchi — aniqlovchining bir turi, ba'zan undalma ham bo'ladi."},
+      {q:"Qaysi gapda vaqt holi bor?",o:["U tez keldi.","Kecha u keldi.","U maktabga keldi.","U xursand keldi."],a:1,e:"'Kecha' — vaqt holini bildiradi."},
+      {q:"Gap bo'laklariga ajratish nima deyiladi?",o:["Morfologik tahlil","Sintaktik tahlil","Fonetik tahlil","Leksik tahlil"],a:1,e:"Gapni bo'laklarga ajratish — sintaktik tahlil."},
+    ],
+    fonetika:[
+      {q:"'Maktab' so'zida nechta harf va tovush?",o:["5h,5t","6h,5t","6h,6t","5h,6t"],a:2,e:"M-a-k-t-a-b = 6 harf, 6 tovush."},
+      {q:"Qaysi so'zda undosh tovushlar qo'shni kelgan?",o:["Arzon","Ota","Stol","Uy"],a:2,e:"'Stol' — s va t undoshlari qo'shni."},
+      {q:"O'zbek tilida nechta unli tovush bor?",o:["5","6","7","8"],a:1,e:"A, e, i, o, u, o' — 6 unli tovush."},
+      {q:"Jarangli undosh qaysi?",o:["P","F","B","S"],a:2,e:"'B' — jarangli undosh (B-D-G-J-Z-V-R-L-M-N)."},
+      {q:"Bo'g'in nima?",o:["Harf birikmas","Bir nafas bilan aytilgan tovush yoki tovushlar","Unli harf","So'zdagi harf soni"],a:1,e:"Bo'g'in — bir nafas harakatida aytilgan tovush yoki tovushlar majmui."},
+      {q:"'Sariq' so'zida nechta bo'g'in?",o:["1","2","3","4"],a:1,e:"Sa-riq — 2 bo'g'in."},
+      {q:"Qaysi harf unli?",o:["M","N","O","L"],a:2,e:"'O' — unli harf (og'iz bo'shlig'ida to'siqsiz hosil bo'ladi)."},
+      {q:"So'z oxirida keluvchi jarangli undosh:",o:["Jarangsizlashadi","O'zgarmaydi","Tushib qoladi","Ko'payadi"],a:0,e:"So'z oxirida jarangli undosh jarangsizlashishi mumkin (assimilyatsiya)."},
+      {q:"'ng' harfi nechtа tovushni ifodalaydi?",o:["1","2","3","Hech birini"],a:0,e:"'Ng' — bitta burun undosh tovushini ifodalaydi."},
+      {q:"Qaysi so'zda 3 bo'g'in bor?",o:["Kitob","Maktab","O'quvchi","Baland"],a:2,e:"O'-quv-chi — 3 bo'g'in."},
+      {q:"Cho'ziq unli tovush qaysi?",o:["A","O'","U","Oo (cho'ziq)"],a:3,e:"Cho'ziq unlilar — ba'zi so'zlarda unlining uzaytirib aytilishi."},
+      {q:"Fonetika nima o'rganadi?",o:["So'z ma'nosi","Tovush va harflar","Gap tuzilishi","So'z turkumlari"],a:1,e:"Fonetika — tildagi tovushlar tizimini o'rganadi."},
+      {q:"'Yot' va 'yod' so'zlari farqi:",o:["Ma'no farqi yo'q","Jarangli/jarangsiz undosh","Unli farqi","Bo'g'in soni"],a:1,e:"T — jarangsiz, D — jarangli undosh."},
+      {q:"Transkripsiya nima?",o:["Tarjima","Tovushli yozuv","Imlo","Ma'no"],a:1,e:"Transkripsiya — so'zning talaffuzini maxsus belgilar bilan yozish."},
+      {q:"Qaysi so'zda lab undoshi bor?",o:["Daryo","Bahor","Kel","Soy"],a:1,e:"'Bahor' — b va h, b lab undoshi."},
+      {q:"Assimilyatsiya degani:",o:["Tovush tushishi","Tovushlarning bir-biriga o'xshashib ketishi","Tovush qo'shilishi","Bo'g'in almashinuvi"],a:1,e:"Assimilyatsiya — qo'shni tovushlarning bir-biriga ta'sir qilishi."},
+      {q:"'O'' harfi qanday unli?",o:["Old qator","Orqa qator lablanmagan","Orqa qator lablangan","Old qator lablangan"],a:2,e:"'O'' — orqa qator, lablangan unli."},
+      {q:"Qaysi so'zda 4 bo'g'in?",o:["Maktab","O'qituvchi","Baland","Kitob"],a:1,e:"O'-qi-tuv-chi — 4 bo'g'in."},
+      {q:"Undosh tovushlar hosil bo'lishiga ko'ra necha guruh?",o:["2","3","4","5"],a:1,e:"Til oldi, til orqa, lab, bo'g'iz — 3-4 guruh."},
+      {q:"'Qalam' so'zidagi 'q' undoshi:",o:["Lab","Til oldi","Til orqa","Bo'g'iz"],a:2,e:"'Q' — chuqur til orqa undosh."},
+    ],
+    leksika:[
+      {q:"Sinonimlar qaysi qatorda?",o:["Baland-past","Kun-tun","Yaxshi-zo'r","Issiq-sovuq"],a:2,e:"Sinonimlar — ma'nosi yaqin so'zlar."},
+      {q:"Antonimlar qaysi qatorda?",o:["Katta-ulkan","Baland-past","Tez-shoshqin","Yaxshi-ajoyib"],a:1,e:"Antonimlar — qarama-qarshi ma'noli so'zlar."},
+      {q:"Omonimlar qaysi?",o:["Yaxshi-zo'r","Ko'z(a'zo) va ko'z(buloq)","Baland-past","Kitob-daftar"],a:1,e:"Omonimlar — bir xil yozilib, turli ma'no anglatadi."},
+      {q:"'Meva' so'zining giponimi:",o:["O'simlik","Olma","Tabiat","Oziq-ovqat"],a:1,e:"'Olma' — 'meva' tushunchasining tor ma'noli turi (hiponiim)."},
+      {q:"Arxaizm nima?",o:["Yangi so'z","Eskirgan so'z","Chet so'z","Kasb so'zi"],a:1,e:"Arxaizmlar — kundalik hayotdan chiqib ketgan eskirgan so'zlar."},
+      {q:"Neologizm nima?",o:["Eskirgan so'z","Yangi paydo bo'lgan so'z","Kasb so'zi","Sheva so'zi"],a:1,e:"Neologizmlar — yangi paydo bo'lgan yoki yangi ma'no kasb etgan so'zlar."},
+      {q:"'Kompyuter' so'zi qanday so'z?",o:["Arxaizm","Neologizm","Dialektizm","Tarixiy so'z"],a:1,e:"'Kompyuter' — yangi texnologiya bilan kirgan neologizm."},
+      {q:"Dialektizm nima?",o:["Adabiy so'z","Faqat ma'lum hududda ishlatiladigan so'z","Kasb so'zi","Eskirgan so'z"],a:1,e:"Dialektizmlar — faqat ayrim hududlarda qo'llaniladigan so'zlar."},
+      {q:"'Tabib' so'zining sinonimlari:",o:["Bemor","Shifokor, vrach, hakim","Kasallik","Dori"],a:1,e:"Tabib, shifokor, vrach, hakim — sinonimik qator."},
+      {q:"Ko'p ma'noli so'z misoli:",o:["Stol (mebel)","Ko'z (ko'rish, buloq, igna ko'zi)","Kitob","Baland"],a:1,e:"'Ko'z' — bir necha ma'noni anglatadi."},
+      {q:"Terminlar qaysi sohaga tegishli?",o:["Badiiy adabiyot","Fan va texnologiya","Kundalik hayot","Sheva"],a:1,e:"Terminlar — fan, texnika, san'at sohalaridagi maxsus so'zlar."},
+      {q:"'Bek, xon, amir' — bu so'zlar:",o:["Neologizm","Arxaizm","Tarixiy so'zlar","Dialektizm"],a:2,e:"Tarixiy so'zlar — o'sha davr voqeliklarini bildiruvchi so'zlar."},
+      {q:"Leksikologiya nima o'rganadi?",o:["Tovushlar","So'z boyligi","Gap tuzilishi","Imlo"],a:1,e:"Leksikologiya — tilning so'z boyligini o'rganadi."},
+      {q:"'Arz qilmoq' — bu so'z qanday?",o:["Ruscha so'z","Arabcha-forscha so'z","O'zbekcha so'z","Inglizcha"],a:1,e:"'Arz' — arabcha so'z, o'zbek tiliga kirib kelgan."},
+      {q:"Frazeologizm nima?",o:["Oddiy so'z birikmasi","Ko'chma ma'noli barqaror ibora","Chet so'z","Atama"],a:1,e:"Frazeologizm — ma'nosi ko'chgan barqaror iboralar: 'ko'ziga qon to'lmoq'."},
+      {q:"'Ko'z tikmoq' frazeologizmi ma'nosi:",o:["Ko'z dardiga tutilmoq","Umid bog'lamoq","Ko'z bilan o'lchash","Ko'zini yummoq"],a:1,e:"'Ko'z tikmoq' — umid bog'lamoq, intilmoq degan ma'noni anglatadi."},
+      {q:"Stilistik jihatdan betaraf so'zlar:",o:["Arxaizmlar","Neologizmlar","Umumiste'mol so'zlar","Terminlar"],a:2,e:"Umumiste'mol so'zlar — hamma qatlam uchun tushunarli, betaraf so'zlar."},
+      {q:"Paronimlar qaysi?",o:["Bir xil ma'noli so'zlar","Talaffuzi yaqin, ma'nosi farqli so'zlar","Qarama-qarshi ma'noli","Ko'p ma'noli"],a:1,e:"Paronimlar: 'adabiy — adabsiz' emas, 'imzo — imo' — talaffuzi o'xshash."},
+      {q:"'Saraton' so'zi ma'nosi:",o:["Bahor fasli","Yoz faslidagi issiqlik","Qish sovug'i","Kuz yomg'iri"],a:1,e:"'Saraton' — yozning eng issiq davri."},
+      {q:"Evfemizm nima?",o:["Qo'pol so'z","Yoqimsiz narsani muloyim ifodalash","Ko'chma ma'no","Arxaizm"],a:1,e:"Evfemizm — qo'pol yoki yoqimsiz tushunchani yumshoq ifodalash usuli."},
+    ],
+    sozYasalish:[
+      {q:"So'z yasalishining asosiy usullari nechtа?",o:["2","3","4","5"],a:1,e:"Morfologik, sintaktik, semantik — 3 asosiy usul."},
+      {q:"'Kitobxon' qanday yasalgan?",o:["Qo'shimcha","Qo'shma","Juft","Takror"],a:1,e:"Kitob+xon — ikki o'zakdan tashkil topgan qo'shma so'z."},
+      {q:"'-chi' qo'shimchasi nimani anglatadi?",o:["Kichraytirish","Kasb-hunar","Ko'plik","Sifat"],a:1,e:"Temirchi, tikuvchi — '-chi' kasb-hunar bildiradi."},
+      {q:"'-lik' qo'shimchasi qo'shilgan so'z:",o:["Balandlik","Yugurmoq","Kitob","Daryo"],a:0,e:"Baland+lik — sifatdan ot yasovchi qo'shimcha."},
+      {q:"Konversiya nima?",o:["Qo'shimcha qo'shish","So'z turkumining o'zgarishi","Qo'shma so'z","Takror"],a:1,e:"Konversiya — so'z shaklini o'zgartirmay, turkumini almashtirish."},
+      {q:"'O'yin-kulgi' qanday so'z?",o:["Qo'shma","Juft","Takror","Murakkab"],a:1,e:"'O'yin-kulgi' — ikki so'zdan tashkil topgan juft so'z."},
+      {q:"'-gich' qo'shimchasi:",o:["To'ldiruvchi qo'shimcha","Qurol-asbob bildiradi","Ko'plik","Belgi"],a:1,e:"Cho'zgich, qisqich, ushlagich — '-gich' qurol bildiradi."},
+      {q:"Lug'aviy ma'no deganda:",o:["Grammatik ma'no","So'zning asosiy, lug'atdagi ma'nosi","Ko'chma ma'no","Stilistik ma'no"],a:1,e:"Lug'aviy ma'no — so'zning asosiy, to'g'ri ma'nosi."},
+      {q:"'-cha' qo'shimchasi so'z yasash misoli:",o:["Bolalarcha","Kitobcha","Tezcha","A va B"],a:3,e:"'Bolalarcha' — ravishdosh, 'kitobcha' — kichraytirish, ikkisi ham '-cha'."},
+      {q:"'Sut-qatiq' qanday so'z?",o:["Qo'shma","Juft","Takror","Oddiy"],a:1,e:"'Sut-qatiq' — bog'liq tushunchalarni ifodalovchi juft so'z."},
+      {q:"'-dosh' qo'shimchasi:",o:["Kasb bildiradi","Birlik bildiradi","Ortiqcha","Belgisiz"],a:1,e:"Hamfikirdosh, kursidosh, vatandosh — '-dosh' birlikni bildiradi."},
+      {q:"Qo'shimcha qo'shish usuli nomi:",o:["Kompozitsiya","Affixatsiya","Konversiya","Semantik"],a:1,e:"Affixatsiya — qo'shimcha qo'shish orqali so'z yasash."},
+      {q:"'Qo'lbola' so'zining ma'nosi:",o:["Qo'lda qilingan","Bolaning qo'li","Qo'l belgisi","Qo'l urmoq"],a:0,e:"'Qo'lbola' — qo'l mehnati bilan tayyorlangan narsa."},
+      {q:"'-imli' qo'shimchasi:",o:["Ot yasaydi","Sifat yasaydi","Fe'l yasaydi","Ravish yasaydi"],a:1,e:"Hunarimli, mehnatkimli — '-imli' sifat yasaydi."},
+      {q:"Semantik so'z yasalishi:",o:["Qo'shimcha qo'shish","Ma'no ko'chirish orqali","Qo'shib yozish","Bog'lovchi"],a:1,e:"Semantik usul — so'zga yangi ma'no yuklab yangi so'z hosil qilish."},
+      {q:"'Ish' so'ziga '-chi' qo'shilsa:",o:["Ishlik","Ishchi","Ishlash","Ishsiz"],a:1,e:"Ish+chi = ishchi — kasbni bildiruvchi yangi so'z."},
+      {q:"Juft so'zlar qanday yoziladi?",o:["Bir so'z","Defis bilan","Ajratib","Qo'shib"],a:1,e:"Juft so'zlar defis bilan yoziladi: ota-ona, qo'l-oyoq."},
+      {q:"'-siz' qo'shimchasi:",o:["Mavjudlikni bildiradi","Yo'qlikni bildiradi","Ko'plikni bildiradi","Kichraytiradi"],a:1,e:"Ishsiz, mevasiz, suvсиз — '-siz' yo'qlikni bildiradi."},
+      {q:"'Yashil+lik' = ?",o:["Sifat","Ot","Ravish","Fe'l"],a:1,e:"Yashillik — sifatdan '-lik' qo'shib ot yasalgan."},
+      {q:"Qaysi so'z takror?",o:["Ota-ona","Tez-tez","Temir yo'l","Kitobxon"],a:1,e:"'Tez-tez' — bir so'zning takrorlanishi."},
+    ],
+    uslubiyat:[
+      {q:"Badiiy uslub qayerda qo'llanadi?",o:["Ilmiy maqolada","She'r va hikoyalarda","Rasmiy hujjatda","Gazetada"],a:1,e:"Badiiy uslub — adabiy asarlarda qo'llanadi."},
+      {q:"Ilmiy uslubning xususiyati:",o:["His-tuyg'u ko'p","Aniq, mantiqli, atamalar ko'p","Sodda, tushunarli","Rasmiy"],a:1,e:"Ilmiy uslub — aniq, mantiqiy, atamalar ishlatiladi."},
+      {q:"Rasmiy-idoraviy uslub qayerda?",o:["She'rda","Ariza, buyruq, shartnomalarda","Gazetada","Suhbatda"],a:1,e:"Rasmiy hujjatlar, buyruq, shartnoma — rasmiy-idoraviy uslub."},
+      {q:"Publitsistik uslub qayerda?",o:["Ilmiy maqolada","Arizada","Gazeta va jurnallarda","She'rda"],a:2,e:"Publitsistik uslub — ommaviy axborot vositalari tili."},
+      {q:"So'zlashuv uslubining xususiyati:",o:["Rasmiy","Sodda, jonli, erkin","Ilmiy","Badiiy"],a:1,e:"So'zlashuv uslubi — kundalik muloqotda qo'llanadi."},
+      {q:"Nuqta qayerda qo'yiladi?",o:["So'roq gapda","Darak gapda","Undov gapda","Hech birida"],a:1,e:"Darak (xabar) gaplarda nuqta qo'yiladi."},
+      {q:"Ikki nuqta (:) qachon qo'yiladi?",o:["Sanash oldidan","Gap oxirida","So'roqdan keyin","Hech qachon"],a:0,e:"Sanash, to'g'ri nutq, umumlashtirish oldidan ikki nuqta qo'yiladi."},
+      {q:"Ko'chirma gapda qo'yiladigan belgi:",o:["( )","[ ]","\" \"","< >"],a:2,e:"Ko'chirma gap qo'shtirnoq ichiga olinadi."},
+      {q:"Tire (-) qachon qo'llanadi?",o:["Sanashda","Ega bilan kesim orasida","Har doim","Hech qachon"],a:1,e:"Ega kesim orasida, dialog oldida tire qo'llanadi."},
+      {q:"Qaysi uslubda arxaizmlar ko'p?",o:["So'zlashuv","Ilmiy","Badiiy (tarixiy mavzuda)","Publitsistik"],a:2,e:"Tarixiy mavzudagi badiiy asarlarda arxaizmlar ko'p ishlatiladi."},
+      {q:"Elipsis (...) nima bildiradi?",o:["Gap tugadi","Fikr to'liq aytilmagan","Sanash","So'roq"],a:1,e:"Elipsis — gapning to'liq ifodalanmaganligi, ohangning susayishini bildiradi."},
+      {q:"Qavs () nimaga ishlatiladi?",o:["Izoh uchun","Gap tugashi","So'roq","Undov"],a:0,e:"Qavs — qo'shimcha izoh, tushuntirish uchun ishlatiladi."},
+      {q:"Fonda o'z nutq uslubi qaysi?",o:["Rasmiy","Ilmiy","Badiiy","So'zlashuv"],a:3,e:"Oddiy suhbat, kundalik muloqot — so'zlashuv uslubi."},
+      {q:"Qaysi belgidan keyin katta harf yoziladi?",o:["Vergul","Nuqta","Ikki nuqta","Tire"],a:1,e:"Nuqtadan keyin yangi gap boshlanadi — katta harf."},
+      {q:"Uslubiy xato deganda:",o:["Imlo xatosi","Uslubga mos kelmaydigan so'z qo'llash","Grammatik xato","Tinish belgisi xatosi"],a:1,e:"Uslubiy xato — ma'lum uslubga mos kelmaydigan so'z yoki ibora."},
+      {q:"Metafor qaysi uslubda ko'p?",o:["Rasmiy","Ilmiy","Badiiy","So'zlashuv"],a:2,e:"Ko'chma ma'no, metafor — badiiy uslubda keng qo'llanadi."},
+      {q:"Qaysi tinish belgisi hayajonni bildiradi?",o:["Nuqta",". . .","!","?"],a:2,e:"Undov belgisi — his-hayajon, quvonch, buyruq kabi tuyg'ularni bildiradi."},
+      {q:"'Albatta, ehtimol' kabi so'zlar ajratiladi:",o:["Vergul bilan","Tire bilan","Qavs bilan","Ajratilmaydi"],a:0,e:"Kirish so'zlar (modal so'zlar) vergul bilan ajratiladi."},
+      {q:"Urg'u deganda:",o:["Harfni cho'zish","Bo'g'inlardan birini kuchliroq aytish","So'zni tez aytish","Pauza"],a:1,e:"Urg'u — so'zdagi bir bo'g'inni boshqalardan kuchliroq, aniqroq aytish."},
+      {q:"Dialog qanday rasmiylashtiriladi?",o:["Qo'shtirnoq","Tire bilan","Qavsda","Kursiv"],a:1,e:"Dialog — har bir replika tireli qator bilan rasmiylashtiriladi."},
+    ],
+    klassikAdab:[
+      {q:"Alisher Navoiyning lirik kulliyoti nomi:",o:["Xamsa","Lison ut-tayr","Xazoyin ul-maoniy","Mahbub ul-qulub"],a:2,e:"Xazoyin ul-maoniy — to'rt devondan iborat lirik kulliyot."},
+      {q:"Navoiy Xamsasi nechanchi asrda yozilgan?",o:["XIV","XV","XVI","XIII"],a:1,e:"Navoiy Xamsasini 1483-1485 yillar orasida yozgan — XV asr."},
+      {q:"'Farhod va Shirin' dostoni muallifi:",o:["Nizomiy","Navoiy","Lutfiy","Bobur"],a:1,e:"Navoiy 'Farhod va Shirin' dostonini Nizomiyga javoban yozgan."},
+      {q:"Bobur qaysi asarni yozgan?",o:["Xamsa","Baburxona","Boburnoma","Muhokamat ul-lug'atayn"],a:2,e:"'Boburnoma' — Zahiriddin Muhammad Bobur yozgan avtobiografik asar."},
+      {q:"Lutfiy qaysi janrda ko'proq yozgan?",o:["Doston","G'azal","Roman","Qissa"],a:1,e:"Lutfiy — XV asr o'zbek shoiri, ko'proq g'azal yozgan."},
+      {q:"'Muhokamat ul-lug'atayn' asari muallifi:",o:["Bobur","Navoiy","Lutfiy","Mashrab"],a:1,e:"Navoiy 'Muhokamat ul-lug'atayn'da o'zbek va fors tillarini qiyoslagan."},
+      {q:"Navoiy qaysi shaharda tug'ilgan?",o:["Samarqand","Buxoro","Hirot","Toshkent"],a:2,e:"Alisher Navoiy 1441-yil Hirotda tug'ilgan."},
+      {q:"'Devonu lug'otit turk' muallifi:",o:["Yusuf Xos Hojib","Mahmud Koshg'ariy","Ahmad Yugnakiy","Navoiy"],a:1,e:"Mahmud Koshg'ariy XI asrda turkiy tillar lug'atini tuzgan."},
+      {q:"'Qutadg'u bilig' asari:",o:["XII asr","XI asr","X asr","XIII asr"],a:1,e:"Yusuf Xos Hojib 1069-70 yillarida yozgan — XI asr."},
+      {q:"Hofiz Sheroziy qaysi xalqning shoiri?",o:["O'zbek","Fors-tojik","Arab","Turk"],a:1,e:"Hofiz Sheroziy — XIV asr buyuk fors-tojik shoiri."},
+      {q:"Navoiy adabiy taxallusi:",o:["Bobur","Navoiy","Faniy","Husayn"],a:1,e:"'Navoiy' — Alisherning o'zi tanlagan taxallus."},
+      {q:"'Xamsa' nima?",o:["Beshta she'r","Beshta doston","Beshta roman","Beshta g'azal"],a:1,e:"Xamsa — beshta yirik dostondan iborat to'plam."},
+      {q:"Ahmad Yugnakiy asari:",o:["Qutadg'u bilig","Hibat ul-haqoyiq","Devonu lug'otit turk","Xamsa"],a:1,e:"'Hibat ul-haqoyiq' — XII asrda Ahmad Yugnakiy yozgan didaktik asar."},
+      {q:"Navoiy necha yilda vafot etgan?",o:["1501","1505","1510","1492"],a:0,e:"Alisher Navoiy 1501-yil 3-yanvarda Hirotda vafot etgan."},
+      {q:"'Lison ut-tayr' dostoni qaysi mavzuda?",o:["Muhabbat","Qushlarning piri izlagan safari","Urush","Tarix"],a:1,e:"'Lison ut-tayr' — qushlarning Simurg'ni izlab safari orqali komolot yo'li."},
+      {q:"Mashrab qaysi davr shoiri?",o:["XV asr","XVI asr","XVII-XVIII asr","XIX asr"],a:2,e:"Boborahim Mashrab — XVII-XVIII asrlarda yashagan."},
+      {q:"Umar Xayyom qaysi janrda mashhur?",o:["G'azal","Ruboiy","Doston","Qasida"],a:1,e:"Umar Xayyom — ruboiy janrining ustasi."},
+      {q:"'Saddi Iskandariy' dostonida kim haqida?",o:["Farhod","Iskandar Zulqarnayn","Majnun","Shirin"],a:1,e:"'Saddi Iskandariy' — Iskandar Zulqarnayn (Aleksandr Makedonskiy) haqida."},
+      {q:"Navoiy qaysi tillarida yozgan?",o:["Faqat o'zbekcha","Faqat forscha","O'zbek va fors tillarida","Arab tilida"],a:2,e:"Navoiy o'zbek va fors tillarida ijod qilgan."},
+      {q:"G'azalning asosiy xususiyati:",o:["Epik janr","Lirik janr, radif va qofiyaga ega","Drama","Nasriy janr"],a:1,e:"G'azal — lirik she'r, radif, qofiya, matlaa va maqtaa bo'ladi."},
+    ],
+    zamonaviyAdab:[
+      {q:"'O'tkan kunlar' romanining muallifi:",o:["Cho'lpon","Hamza","Abdulla Qodiriy","G'afur G'ulom"],a:2,e:"'O'tkan kunlar' — Abdulla Qodiriy, 1925-yil."},
+      {q:"Cho'lponning qaysi asari she'riy to'plam?",o:["Kecha va kunduz","Uyg'on","O'rik qoqildi","Yorqinoy"],a:1,e:"'Uyg'on' — Cho'lponning she'riy to'plami."},
+      {q:"Hamza Hakimzodaning mashhur asari:",o:["O'tkan kunlar","Maysaraning ishi","Sarob","Qutlug' qon"],a:1,e:"'Maysaraning ishi' — Hamzaning mashhur dramasi."},
+      {q:"G'afur G'ulomning taxallusi bo'lmagan ismi:",o:["G'afur","Shum bola","Mast yigit","Navoiy"],a:3,e:"G'afur G'ulom — Hamid Olimjon emas, G'afur G'ulom o'zi."},
+      {q:"'Sarob' romani muallifi:",o:["Abdulla Qodiriy","Cho'lpon","Oybek","G'afur G'ulom"],a:2,e:"'Sarob' — Oybek (Musa Toshmuhammad o'g'li) romani."},
+      {q:"Abdulla Qahhor qaysi janrda ko'p yozgan?",o:["Roman","Doston","Hikoya va qissa","She'r"],a:2,e:"Abdulla Qahhor — hikoyanavis sifatida mashhur."},
+      {q:"'Qutlug' qon' romanining muallifi:",o:["Oybek","Hamid Olimjon","Abdulla Qahhor","Mirtemir"],a:0,e:"'Qutlug' qon' — Oybek yozgan tarixiy roman."},
+      {q:"Hamid Olimjon qaysi janrda ko'p ijod qilgan?",o:["Roman","She'r va doston","Hikoya","Drama"],a:1,e:"Hamid Olimjon — XX asr o'zbek lirikasining yetakchi namoyandasi."},
+      {q:"'Shum bola' asarining janri:",o:["Roman","She'r","Qissa","Drama"],a:2,e:"'Shum bola' — G'afur G'ulomning qissasi."},
+      {q:"Erkin Vohidov qaysi asari bilan mashhur?",o:["O'tkan kunlar","O'zbegim","Sarob","Yulduzlar mangu yonadi"],a:1,e:"Erkin Vohidov — 'O'zbegim' she'ri bilan mashhur."},
+      {q:"Abdulla Oripovning mashhur asari:",o:["O'zbegim","Istiqlol","Turkiston","Qorasuv"],a:2,e:"Abdulla Oripov — 'Turkiston' she'ri bilan keng tanilgan."},
+      {q:"Cho'lponning to'liq ismi:",o:["Abdulhamid Sulaymon o'g'li","Abdulhamid Cho'lpon","Cho'lpon Sulaymonov","Abdulhamid"],a:0,e:"Cho'lponning to'liq ismi — Abdulhamid Sulaymon o'g'li."},
+      {q:"'Ikki eshik orasi' romani muallifi:",o:["Oybek","O'tkir Hoshimov","Tohir Malik","Shuhrat"],a:1,e:"'Ikki eshik orasi' — O'tkir Hoshimov romani."},
+      {q:"XX asr o'zbek adabiyotida qaysi janr rivojlandi?",o:["Faqat she'r","Faqat doston","Roman, hikoya, drama","Faqat qissa"],a:2,e:"XX asrda roman, hikoya, qissa, drama janrlari keng rivojlandi."},
+      {q:"Said Ahmad qaysi asari bilan mashhur?",o:["Ufq","Qorasuv","Jimjitlik","Sarob"],a:0,e:"Said Ahmad — 'Ufq' romani bilan mashhur."},
+      {q:"Muxtor Avezov kimning yozuvchisi?",o:["O'zbek","Qozoq","Qirg'iz","Tojik"],a:1,e:"Muxtor Avezov — qozoq yozuvchisi, 'Abay' romani muallifi."},
+      {q:"'Navruz' kim tomonidan shoirona tasvirlangan?",o:["G'afur G'ulom","Oybek","Hamid Olimjon","Cho'lpon"],a:2,e:"Hamid Olimjon Navro'zni she'riy tasvirlagan."},
+      {q:"Asqad Muxtor qaysi asari bilan tanilgan?",o:["Chinor","Dunyoning ishlari","Qorasuv","Davr mening taqdirimda"],a:3,e:"Asqad Muxtor — 'Davr mening taqdirimda' romani bilan mashhur."},
+      {q:"O'zbek dramaturgiyasining asoschisi kimdir?",o:["Hamza","Abdulla Qodiriy","Cho'lpon","Oybek"],a:0,e:"Hamza Hakimzoda Niyoziy — o'zbek dramaturgiyasining asoschisi."},
+      {q:"Ulmas Umarbekov qaysi janrda yozadi?",o:["She'r","Hikoya va roman","Doston","Drama"],a:1,e:"Ulmas Umarbekov — o'zbek nasrining namoyandaleridan biri."},
+    ],
+    adabSanat:[
+      {q:"Tashbeh (o'xshatish) qaysi misolda?",o:["Ko'zlar yulduzday yarqiraydi","Bahor keldi","U kitob o'qidi","Osmon ko'k"],a:0,e:"Tashbeh — bir narsani boshqasiga o'xshatish. 'Ko'zlar yulduzday'."},
+      {q:"Istiora (metafora) qaysi misolda?",o:["U sher kabi kuchli","Vatan — onamiz","Ko'zlar katta","Daryo tez oqadi"],a:1,e:"Istiora — to'g'ridan-to'g'ri ko'chirish. 'Vatan — onamiz'."},
+      {q:"Mubolag'a (giperbol) misoli:",o:["Baland tog'","Osmonni tutib turgan palvon","Katta daryo","Tez yugurdi"],a:1,e:"Mubolag'a — narsani katta oshirib ko'rsatish: 'osmonni tutib turgan'."},
+      {q:"Kinoya (ironiya) nima?",o:["To'g'ri ma'noda maqtash","Teskari ma'noda gapirib, masxara qilish","O'xshatish","Ko'chirish"],a:1,e:"Kinoya — teskari ma'noda gapirib, imo bilan tanqid qilish."},
+      {q:"Litota nima?",o:["Oshirib ko'rsatish","Kamaytiriб ko'rsatish","O'xshatish","Ko'chirish"],a:1,e:"Litota — kamaytirib ifodalash: 'bir qultum suv' — oz suv demoqchi."},
+      {q:"Tazod (antiteza) nima?",o:["O'xshash narsalarni sanash","Qarama-qarshi narsalarni yonma-yon qo'yish","Ko'chirish","Takrorlash"],a:1,e:"Tazod — zid tushunchalarni yonma-yon qo'yish: 'Hayot-o'lim'."},
+      {q:"Alliteratsiya nima?",o:["Unlilar takrori","Undoshlar takrori","Ma'no takrori","Qofiya"],a:1,e:"Alliteratsiya — she'rda bir xil undosh tovushning takrorlanishi."},
+      {q:"Anafora nima?",o:["She'r qofiyasi","Satр boshida so'zning takrorlanishi","O'xshatish","Ko'chirish"],a:1,e:"Anafora — ketma-ket satrlarda bir xil so'z yoki iboraning takrorlanishi."},
+      {q:"Epifora nima?",o:["Satr boshida takror","Satr oxirida takror","O'rtada takror","Qofiya"],a:1,e:"Epifora — ketma-ket satrlarda oxirgi so'z yoki iboraning takrorlanishi."},
+      {q:"Personifikatsiya (jonlantirish) misoli:",o:["Baland tog'","Shamol kuylaydi","Katta daryo","Tez yugurdi"],a:1,e:"Personifikatsiya — jonsiz narsaga jonli xususiyat berish: 'Shamol kuylaydi'."},
+      {q:"Sifatlash (epithet) misoli:",o:["U keldi","Oltin kuz","Daryo oqadi","Kitob o'qidi"],a:1,e:"Sifatlash — badiiy ta'sir uchun qo'llaniladigan aniqlovchi: 'Oltin kuz'."},
+      {q:"Perifraz nima?",o:["To'g'ri nom","Narsani bilvosita ifodalash","Takrorlash","O'xshatish"],a:1,e:"Perifraz — narsaning nomini boshqacha ifodalash: 'Oq oltin' = paxta."},
+      {q:"Oksimoron misoli:",o:["Baland tog'","Qora qor","Tirik o'lik","Katta uy"],a:2,e:"Oksimoron — qarama-qarshi so'zlarni birlashtirish: 'Tirik o'lik'."},
+      {q:"Gradatsiya (klimaks) nima?",o:["Tasvirni pasaytirib borish","Tasvirni kuchaytiriб borish","O'xshatish","Takrorlash"],a:1,e:"Gradatsiya — his-tuyg'u yoki tasvirni tobora kuchaytiriб borish."},
+      {q:"Inversiya nima?",o:["So'z tartibini o'zgartirish","O'xshatish","Ko'chirish","Takrorlash"],a:0,e:"Inversiya — odatdagi so'z tartibini o'zgartirish: 'Keldi bahor'."},
+      {q:"Retorik savol nima?",o:["Javob kutadigan savol","Javob kutilmaydigan savol","So'roq gaplar","Muammo"],a:1,e:"Retorik savol — javob kutilmaydigan, ta'sir uchun qo'yiladigan savol."},
+      {q:"Simvol nima?",o:["To'g'ri ma'no","Narsaning keng ma'noda belgisi","O'xshatish","Takrorlash"],a:1,e:"Simvol — narsa yoki hodisaning keng, ramziy ma'nosi: Oq kaptar = tinchlik."},
+      {q:"Allegori (ramz) nima?",o:["To'g'ri hikoya","Bir narsaning boshqasi orqali tasvirlanishi","O'xshatish","Ko'chirish"],a:1,e:"Allegori — mavhum tushunchani aniq obraz orqali ifodalash."},
+      {q:"'Sevgi — olov' — bu qaysi san'at?",o:["Tashbeh","Istiora","Mubolag'a","Kinoya"],a:1,e:"To'g'ridan-to'g'ri ko'chirish — istiora (metafora)."},
+      {q:"Refren nima?",o:["She'r boshi","She'rda takrorlanuvchi satr yoki band","She'r oxiri","Qofiya"],a:1,e:"Refren — she'rda ma'lum banddan keyin takrorlanadigan satr(lar)."},
+    ],
+  },
+  tarix:{
+    qadim:[
+      {q:"O'zbekiston hududidagi eng qadimgi davlat:",o:["Parfiya","Baqtriya","Xorazm","Marg'iyona"],a:2,e:"Xorazm — mil.avv. I ming yillikning boshlarida vujudga kelgan."},
+      {q:"Zardushtiylik dini qayerda paydo bo'lgan?",o:["Hindiston","Markaziy Osiyo","Eron","Arabiston"],a:1,e:"Zardushtiylik — Markaziy Osiyoda, ehtimol hozirgi O'zbekiston hududida paydo bo'lgan."},
+      {q:"Avesto qaysi din kitobi?",o:["Islom","Zardushtiylik","Budda","Xristianlik"],a:1,e:"Avesto — zardushtiylik dinining muqaddas kitobi."},
+      {q:"Ahamoniylar imperiyasi qachon hukm surgan?",o:["Mil.avv. V-VI asrlar","Mil.avv. VI-IV asrlar","Mil.avv. III-II asrlar","Mil.avv. I asr"],a:1,e:"Ahamoniylar — mil.avv. 550-330 yillar."},
+      {q:"Iskandar Makedonskiy O'rta Osiyoni qachon bosib olgan?",o:["Mil.avv. IV asr","Mil.avv. III asr","Mil.avv. II asr","Mil.avv. I asr"],a:0,e:"Iskandar mil.avv. 329-327 yillarda O'rta Osiyoni zabt etgan."},
+      {q:"Spitamen kim bo'lgan?",o:["Ahamoniylar podshosi","Makedoniyalik sarkarda","O'rta Osiyo qahramoni","Arab xalifasi"],a:2,e:"Spitamen — Iskandar bosqiniga qarshi kurashgan mahalliy qo'mondon."},
+      {q:"Qanqa shahri qayerda joylashgan?",o:["Farg'ona","Xorazm","Toshkent viloyati","Samarqand"],a:2,e:"Qanqa — qadimgi Choch (Toshkent) viloyatidagi yirik shahar."},
+      {q:"Kushonlar imperiyasi qaysi asrda gullab-yashnagan?",o:["Mil.avv. I-milodiy I asr","Milodiy I-III asrlar","Milodiy IV-V asrlar","Milodiy VI-VII asrlar"],a:1,e:"Kushon imperiyasi — milodiy I-III asrlarda eng qudratli bo'lgan."},
+      {q:"Kanishka — bu kimdir?",o:["Ahamoniylar shohi","Kushon podshosi","Arab xalifasi","Somoniy amiri"],a:1,e:"Kanishka — buyuk Kushon podshosi, buddizmni qo'llagan."},
+      {q:"Ipak yo'li qachon ochilgan?",o:["Mil.avv. V asrda","Mil.avv. II asrda","Milodiy I asrda","Milodiy III asrda"],a:1,e:"Ipak yo'li mil.avv. II asrda Xitoy elchisi Chjan Syan safari bilan ochilgan."},
+      {q:"Xorazm podsholigi qachon vujudga kelgan?",o:["Mil.avv. III-II asrlarda","Milodiy I asrda","Milodiy III asrda","Milodiy V asrda"],a:0,e:"Xorazm mustaqil podsholigi mil.avv. II-I asrlarda shakllangan."},
+      {q:"Baqtriya qayerda joylashgan?",o:["Hozirgi O'zbekiston va Tojikiston","Hozirgi Eron","Hozirgi Hindiston","Hozirgi Afg'oniston"],a:0,e:"Baqtriya — hozirgi janubiy O'zbekiston va shimoliy Afg'oniston hududida."},
+      {q:"Parfiya podsholigi qayerda bo'lgan?",o:["Hozirgi Eron va Turkmaniston","O'zbekiston","Hindiston","Arabiston"],a:0,e:"Parfiya — hozirgi Eron va Turkmaniston hududida mil.avv. III-milodiy III asrlarda."},
+      {q:"'Avesta'ning ma'nosi:",o:["Qonun","Asos, poydevor","Muqaddas bilim","Osmon"],a:2,e:"'Avesta' — qadimgi fors tilida 'asos, muqaddas matn' ma'nosini anglatadi."},
+      {q:"Eftaliylar davlati qachon hukm surgan?",o:["III-IV asrlar","IV-VI asrlar","VI-VII asrlar","VII-VIII asrlar"],a:1,e:"Eftaliylar — milodiy IV-VI asrlarda O'rta Osiyoda hukmronlik qilgan."},
+      {q:"Sug'diyona qayerda joylashgan?",o:["Farg'ona vodiysi","Zarafshon vodiysi","Amudaryo bo'ylari","Sirdaryo bo'ylari"],a:1,e:"Sug'diyona — Zarafshon vodiysi (hozirgi Samarqand va Buxoro atrofi)."},
+      {q:"Qadimgi Xorazm poytaxti:",o:["Urganch","Ko'zaliqir","Toprak-qala","Qo'yqirilg'on"],a:1,e:"Ko'zaliqir — qadimgi Xorazmning eng qadimgi poytaxtlaridan biri."},
+      {q:"Mug' tog'i xazinasi topilgan davr:",o:["VIII asr","IX asr","X asr","VII asr"],a:0,e:"Mug' tog'idan VIII asrga oid sug'd hujjatlari topilgan."},
+      {q:"Paykan — bu nima?",o:["Qadimgi shahar","O'q uchi","Zardushtiylik ma'badi","Mudofaa devori"],a:1,e:"Paykan — o'q yoki nayza uchi, qadimgi qurolning bir qismi."},
+      {q:"O'rta Osiyoda dastlabki davlatlar qachon paydo bo'lgan?",o:["Mil.avv. X-VIII asrlar","Mil.avv. V-IV asrlar","Mil.avv. III-II asrlar","Milodiy I asr"],a:0,e:"O'rta Osiyoda ilk davlat uyushmalari mil.avv. X-VIII asrlarda vujudga kelgan."},
+    ],
+    mustaqillik:[
+      {q:"O'zbekiston mustaqilligini qachon e'lon qildi?",o:["1991-yil 31-avgust","1991-yil 1-sentabr","1991-yil 31-dekabr","1992-yil 1-yanvar"],a:0,e:"O'zbekiston Respublikasi mustaqilligi 1991-yil 31-avgustda e'lon qilindi."},
+      {q:"O'zbekistonning birinchi Prezidenti:",o:["Shavkat Mirziyoyev","Islam Karimov","Nigmatjon Yusupov","Abdulhashim Mutalov"],a:1,e:"Islam Abdug'aniyevich Karimov — O'zbekistonning birinchi Prezidenti."},
+      {q:"O'zbekiston Konstitutsiyasi qachon qabul qilingan?",o:["1991-yil","1992-yil","1993-yil","1994-yil"],a:1,e:"O'zbekiston Respublikasining Konstitutsiyasi 1992-yil 8-dekabrda qabul qilingan."},
+      {q:"O'zbekiston qaysi xalqaro tashkilotga birinchi bo'lib kirdi?",o:["NATO","BMT","YUNESKO","MDH"],a:1,e:"O'zbekiston 1992-yil 2-martda BMTga qabul qilindi."},
+      {q:"O'zbekiston pul birligi:",o:["Rubl","So'm","Tanga","Manat"],a:1,e:"O'zbekiston so'mi 1994-yil 1-iyuldan muomalaga kiritilgan."},
+      {q:"O'zbekistonning milliy bayrog'idagi ranglar:",o:["Ko'k, oq, yashil","Ko'k, oq, yashil, qizil chiziqlar","Yashil, oq, ko'k","Qizil, yashil, oq"],a:0,e:"Ko'k, oq, yashil ranglar va qizil chiziqlar — O'zbekiston bayrog'i."},
+      {q:"'O'zbekiston 2030' strategiyasi:",o:["Iqtisodiy rivojlanish dasturi","Ta'lim islohoti","Sog'liqni saqlash","Mudofaa"],a:0,e:"'O'zbekiston 2030' — yangi O'zbekistonning taraqqiyot strategiyasi."},
+      {q:"Shavkat Mirziyoyev prezident bo'lgan yil:",o:["2014","2015","2016","2017"],a:2,e:"Shavkat Mirziyoyev 2016-yil sentyabrdan O'zbekiston Prezidenti."},
+      {q:"O'zbekistonning milliy madhiyasi muallifi:",o:["Abdulla Oripov","Mutal Bo'ronov","Erkin Vohidov","G'afur G'ulom"],a:0,e:"O'zbekiston madhiyasini Abdulla Oripov yozgan."},
+      {q:"O'zbekiston necha viloyatdan iborat?",o:["10","12","14","13"],a:3,e:"O'zbekiston 12 viloyat, 1 avtonom respublika (Qoraqalpog'iston) va Toshkent shahridan iborat — jami 14 ta."},
+      {q:"Toshkent qachon poytaxt bo'lgan?",o:["1930","1918","1924","1991"],a:0,e:"Toshkent O'zbekiston SSR poytaxti 1930-yildan, mustaqil respublika poytaxti 1991-yildan."},
+      {q:"O'zbekistonning davlat tili:",o:["Rus tili","O'zbek tili","Qoraqalpoq tili","Tojik tili"],a:1,e:"O'zbek tili — O'zbekiston Respublikasining yagona davlat tili."},
+      {q:"'Yuksak malakali mutaxassislar' dasturi:",o:["El-yurt umidi","Istiqbolli avlod","Komil inson","Vatan"],a:0,e:"'El-yurt umidi' — chet elda o'qitish uchun davlat stipendiya dasturi."},
+      {q:"O'zbekiston MDHga qachon kirgan?",o:["1991","1992","1993","1994"],a:0,e:"O'zbekiston MDHga 1991-yil dekabrda qo'shilgan."},
+      {q:"Navruz O'zbekistonda rasman qaysi yildan nishonlanadi?",o:["1989","1990","1991","1992"],a:0,e:"Navruz rasman 1989-yildan O'zbekistonda nishonlana boshlagan."},
+      {q:"O'zbekiston aholisi taxminan necha million?",o:["25 million","30 million","36 million","40 million"],a:2,e:"2024-yil ma'lumotiga ko'ra O'zbekiston aholisi 36 milliondan oshgan."},
+      {q:"'Raqamli O'zbekiston 2030' dasturi maqsadi:",o:["Harbiy kuchini oshirish","Raqamli iqtisodiyotni rivojlantirish","Qishloq xo'jaligini rivojlantirish","Ta'limni yaxshilash"],a:1,e:"'Raqamli O'zbekiston' — axborot texnologiyalari va raqamli iqtisodiyotni rivojlantirish."},
+      {q:"SCO (ShOT) da O'zbekiston a'zo bo'lgan yil:",o:["2001","2002","2003","2004"],a:0,e:"O'zbekiston Shanxay hamkorlik tashkilotiga 2001-yilda qo'shilgan."},
+      {q:"O'zbekiston OlympiadaTde birinchi oltin medallni qachon qo'lga kiritdi?",o:["1992","1996","2000","2004"],a:1,e:"O'zbekiston 1996-Atlanta Olimpiadasida birinchi oltin medalga sazovor bo'ldi."},
+      {q:"O'zbekiston Respublikasining Gerbi nima tasvirlangan?",o:["Faqat Sher","Humo qushi, tog'lar, quyosh, g'allapoʻsh","Faqat bayrоq","Faqat yulduzlar"],a:1,e:"Gerbda Humo qushi, Zarafshon tog'lari, quyosh, bug'doy boshoqlari tasvirlangan."},
+    ],
+  },
+  ingliz:{
+    grammar1:[
+      {q:"'She ___ to school every day.' (Present Simple)",o:["go","goes","going","went"],a:1,e:"3rd person singular + -s: She goes."},
+      {q:"'They ___ football now.' (Present Continuous)",o:["play","plays","are playing","played"],a:2,e:"Present Continuous: am/is/are + V-ing."},
+      {q:"'I ___ my homework yesterday.' (Past Simple)",o:["do","did","done","does"],a:1,e:"Past Simple: irregular verb 'do' → 'did'."},
+      {q:"'By 2030, scientists ___ a cure.' (Future Perfect)",o:["will find","will have found","are finding","found"],a:1,e:"Future Perfect: will have + V3."},
+      {q:"'She ___ here for 5 years.' (Present Perfect)",o:["lived","has lived","is living","lives"],a:1,e:"Present Perfect: has/have + V3."},
+      {q:"'When I arrived, he ___ already.' (Past Perfect)",o:["left","has left","had left","was leaving"],a:2,e:"Past Perfect: had + V3."},
+      {q:"'They ___ dinner at 7 pm tomorrow.' (Future Continuous)",o:["will eat","will be eating","are eating","ate"],a:1,e:"Future Continuous: will be + V-ing."},
+      {q:"'I ___ English since 2020.' (Present Perfect Continuous)",o:["learn","have been learning","learned","am learning"],a:1,e:"Present Perfect Continuous: have/has been + V-ing."},
+      {q:"Qaysi gap to'g'ri?",o:["She don't like coffee.","She doesn't likes coffee.","She doesn't like coffee.","She not like coffee."],a:2,e:"Negative in Present Simple: doesn't + base verb."},
+      {q:"'He ___ TV when I called.' (Past Continuous)",o:["watched","watches","was watching","is watching"],a:2,e:"Past Continuous: was/were + V-ing."},
+      {q:"'They ___ the project by Friday.' (Future Perfect)",o:["finish","will finish","will have finished","finished"],a:2,e:"Future Perfect: will have + V3."},
+      {q:"'I usually ___ up at 7.' (Present Simple)",o:["wake","wakes","waking","woken"],a:0,e:"Present Simple 1st person: base verb."},
+      {q:"'She ___ to Paris last summer.' (Past Simple)",o:["go","goes","went","gone"],a:2,e:"Past Simple of 'go' is 'went'."},
+      {q:"'___ you ever been to London?' (Present Perfect)",o:["Did","Have","Do","Are"],a:1,e:"Present Perfect question: Have/Has + subject + V3."},
+      {q:"'He ___ his keys.' (Present Perfect)",o:["lose","lost","has lost","is losing"],a:2,e:"Present Perfect: has + V3 (lost)."},
+      {q:"'At 8 pm yesterday, I ___.' (Past Continuous)",o:["slept","was sleeping","sleep","have slept"],a:1,e:"Past Continuous: was/were + V-ing."},
+      {q:"'She ___ here tomorrow.' (Future Simple)",o:["will be","is","was","be"],a:0,e:"Future Simple: will + base verb."},
+      {q:"Which sentence is correct?",o:["I am go to school.","I go to school.","I goes to school.","I going to school."],a:1,e:"Present Simple 1st person: subject + base verb."},
+      {q:"'They ___ for 2 hours.' (Past Perfect Continuous)",o:["had been waiting","were waiting","waited","have waited"],a:0,e:"Past Perfect Continuous: had been + V-ing."},
+      {q:"'___ she speak French?' (Present Simple question)",o:["Do","Does","Is","Has"],a:1,e:"Question in Present Simple 3rd person: Does + subject + base verb."},
+    ],
+    grammar2:[
+      {q:"'You ___ wear a seatbelt. It's the law.'",o:["can","might","must","would"],a:2,e:"'Must' — qonun, majburiyat bildiradi."},
+      {q:"'I ___ swim when I was 5.'",o:["must","could","should","would"],a:1,e:"'Could' — o'tmishdagi qobiliyatni bildiradi."},
+      {q:"'You ___ eat so much sugar. It's bad for you.'",o:["mustn't","shouldn't","can't","wouldn't"],a:1,e:"'Shouldn't' — maslahat, tavsiya (rad etish)."},
+      {q:"'It ___ rain today. Take an umbrella.'",o:["must","might","should","can"],a:1,e:"'Might' — imkoniyat, noaniqlik bildiradi."},
+      {q:"'___ I open the window?' (permission)",o:["Must","Should","May","Would"],a:2,e:"'May' — rasmiy ruxsat so'rash."},
+      {q:"'She ___ be tired. She worked all day.'",o:["can","must","might","should"],a:1,e:"'Must' — mantiqiy xulosa (ehtimol shunday)."},
+      {q:"'You ___ be late for the exam!'",o:["mustn't","shouldn't","wouldn't","couldn't"],a:0,e:"'Mustn't' — qat'iy taqiq."},
+      {q:"'___ you help me, please?'",o:["Must","Should","Could","May"],a:2,e:"'Could' — iltimos, so'rov bildiradi."},
+      {q:"'I ___ rather stay home tonight.'",o:["will","would","should","can"],a:1,e:"'Would rather' — afzallik bildiradi."},
+      {q:"'They ___ have arrived by now.'",o:["should","must","can","will"],a:0,e:"'Should have' — bo'lishi kerak edi (taxmin)."},
+      {q:"'You ___ smoke in hospitals.'",o:["mustn't","shouldn't","can't","wouldn't"],a:0,e:"'Mustn't' — qat'iy taqiq (qonun)."},
+      {q:"'___ I use your phone?'",o:["Must","Will","Can","Should"],a:2,e:"'Can' — norasmiy ruxsat so'rash."},
+      {q:"'She ___ speak three languages.'",o:["must","can","should","would"],a:1,e:"'Can' — qobiliyat, malaka bildiradi."},
+      {q:"'You ___ see a doctor.'",o:["must","can","should","would"],a:2,e:"'Should' — maslahat, tavsiya."},
+      {q:"'It ___ be John at the door.'",o:["should","must","can","would"],a:1,e:"'Must' — aniq taxmin, mantiqiy xulosa."},
+      {q:"'___ you like some tea?'",o:["Do","Would","Should","Must"],a:1,e:"'Would you like' — taklif qilish."},
+      {q:"'She ___ have told me earlier.'",o:["could","should","must","would"],a:1,e:"'Should have' — aytishi kerak edi (tanqid)."},
+      {q:"'You ___ park here. It's illegal.'",o:["mustn't","shouldn't","can't","wouldn't"],a:0,e:"'Mustn't' — qonuniy taqiq."},
+      {q:"'___ you mind closing the door?'",o:["Do","Would","Can","Should"],a:1,e:"'Would you mind' — iltimos, so'rov."},
+      {q:"'He ___ be the new teacher.'",o:["can","must","should","would"],a:1,e:"'Must' — shunday bo'lsa kerak (taxmin)."},
+    ],
+  }
+};
+
+// Faqat mavjud bo'limlarga default savollar qo'shish
+function getSavollar(fanId, bolimId){
+  const f=SAVOLLAR[fanId];
+  if(f && f[bolimId]) return f[bolimId];
+  // Default savollar
+  return [
+    {q:`Bu ${bolimId} bo'limining 1-savolidir. Qaysi javob to'g'ri?`,o:["A javob","B javob","C javob","D javob"],a:0,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 2-savolidir.`,o:["Birinchi","Ikkinchi","Uchinchi","To'rtinchi"],a:1,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 3-savolidir.`,o:["To'g'ri A","To'g'ri B","To'g'ri C","To'g'ri D"],a:2,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 4-savolidir.`,o:["1-variant","2-variant","3-variant","4-variant"],a:3,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 5-savolidir.`,o:["Ha","Yo'q","Ehtimol","Aniq emas"],a:0,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 6-savolidir.`,o:["A","B","C","D"],a:1,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 7-savolidir.`,o:["Variant 1","Variant 2","Variant 3","Variant 4"],a:2,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 8-savolidir.`,o:["Birinchi javob","Ikkinchi javob","Uchinchi javob","To'rtinchi javob"],a:0,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 9-savolidir.`,o:["To'g'ri","Xato","Ehtimol","Aniq"],a:1,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 10-savolidir.`,o:["A variant","B variant","C variant","D variant"],a:3,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 11-savolidir.`,o:["Ha","Yo'q","Balki","Albatta"],a:0,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 12-savolidir.`,o:["Birinchi","Ikkinchi","Uchinchi","To'rtinchi"],a:2,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 13-savolidir.`,o:["A","B","C","D"],a:1,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 14-savolidir.`,o:["1","2","3","4"],a:3,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 15-savolidir.`,o:["To'g'ri A","To'g'ri B","To'g'ri C","To'g'ri D"],a:0,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 16-savolidir.`,o:["Variant A","Variant B","Variant C","Variant D"],a:2,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 17-savolidir.`,o:["Ha","Yo'q","Ehtimol","Aniq"],a:1,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 18-savolidir.`,o:["Birinchi","Ikkinchi","Uchinchi","To'rtinchi"],a:3,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 19-savolidir.`,o:["A javob","B javob","C javob","D javob"],a:0,e:"Bu namuna savol."},
+    {q:`Bu ${bolimId} bo'limining 20-savolidir.`,o:["To'g'ri","Noto'g'ri","Ehtimol","Aniq emas"],a:1,e:"Bu namuna savol."},
+  ];
 }
 
-function render() {
-  const app = document.getElementById('app');
-  if (state.screen === 'start') app.innerHTML = renderStart();
-  else if (state.screen === 'quiz') app.innerHTML = renderQuiz();
-  else if (state.screen === 'result') app.innerHTML = renderResult();
-  else if (state.screen === 'review') app.innerHTML = renderReview();
+// ============ STATE ============
+let state={
+  screen:'home', // home|fan|bolimInfo|quiz|result|profil|reyting
+  fanId:null, bolimId:null,
+  questions:[],current:0,selected:null,confirmed:false,
+  score:0,wrong:[],timeLeft:30*60,timer:null,
+  profil:{name:"Abdusaid",totalTests:0,totalScore:0,history:[]},
+  tab:'home'
+};
+
+function shuffle(a){return [...a].sort(()=>Math.random()-0.5);}
+
+// ============ RENDER ============
+function render(){
+  const app=document.getElementById('app');
+  let html='';
+  if(state.screen==='home') html=renderHome();
+  else if(state.screen==='fan') html=renderFan();
+  else if(state.screen==='bolimInfo') html=renderBolimInfo();
+  else if(state.screen==='quiz') html=renderQuiz();
+  else if(state.screen==='result') html=renderResult();
+  else if(state.screen==='reyting') html=renderReyting();
+  else if(state.screen==='profil') html=renderProfil();
+  app.innerHTML=html;
 }
 
-function renderStart() {
-  return `<div class="start-screen">
-    <div class="start-icon">📝</div>
-    <h1 class="start-title">Ona tili va Adabiyot</h1>
-    <p class="start-subtitle">Davlat attestatsiya imtihoniga<br>tayyorgarlik testi.<br><strong>20 savol · 30 daqiqa</strong></p>
-    <div class="topics-box">
-      <div class="topic-row"><span>📌</span><span>Imlo va grammatika</span></div>
-      <div class="topic-row"><span>🔤</span><span>Morfologiya va sintaksis</span></div>
-      <div class="topic-row"><span>📚</span><span>Leksikologiya va fonetika</span></div>
-      <div class="topic-row"><span>✍️</span><span>O'zbek adabiyoti</span></div>
-      <div class="topic-row"><span>🎭</span><span>Adabiy san'atlar</span></div>
+function renderHome(){
+  const fans=Object.values(FANLAR);
+  return`<div class="page-content fade-up">
+    <div class="navbar">
+      <span class="nav-logo">📚 Test Platformasi</span>
+      <button class="nav-profile-btn" onclick="goTab('profil')">${state.profil.name[0]}</button>
     </div>
-    <button class="btn-start" onclick="startQuiz()">Testni boshlash →</button>
+    <div class="home-header fade-up-1">
+      <h1 class="home-title">Davlat Attestatsiya<br>Imtihoniga Tayyorlan</h1>
+      <p class="home-sub">3 fan · 30 bo'lim · 600+ savol</p>
+    </div>
+    <div class="subjects-grid">
+      ${fans.map((f,i)=>`
+      <div class="subject-card ${f.id}" onclick="openFan('${f.id}')" style="animation-delay:${0.1+i*0.1}s;animation:fadeUp 0.5s ease both;">
+        <div class="sc-header">
+          <span class="sc-icon">${f.icon}</span>
+          <div class="sc-info">
+            <h3>${f.name}</h3>
+            <p>${f.bolimlar.length} bo'lim · 20 savol/bo'lim</p>
+          </div>
+          <span class="sc-arrow">›</span>
+        </div>
+        <div class="sc-stats">
+          <div class="sc-stat"><div class="sc-stat-num" style="color:${f.color}">${f.bolimlar.length}</div><div class="sc-stat-label">Bo'lim</div></div>
+          <div class="sc-stat"><div class="sc-stat-num" style="color:${f.color}">${f.bolimlar.length*20}</div><div class="sc-stat-label">Savol</div></div>
+          <div class="sc-stat"><div class="sc-stat-num" style="color:${f.color}">30'</div><div class="sc-stat-label">Vaqt</div></div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>${renderBottomNav()}`;
+}
+
+function renderFan(){
+  const f=FANLAR[state.fanId];
+  return`<div class="page-content fade-up">
+    <button class="back-btn" onclick="goTab('home')">← Orqaga</button>
+    <div class="fan-header">
+      <div class="fan-icon">${f.icon}</div>
+      <h2 class="fan-title">${f.name}</h2>
+      <p class="fan-sub">${f.desc}</p>
+    </div>
+    <div class="bolimlar-grid">
+      ${f.bolimlar.map((b,i)=>`
+      <div class="bolim-card" onclick="openBolimInfo('${b.id}')" style="animation:fadeUp 0.4s ease ${i*0.05}s both;">
+        <div class="bolim-num" style="background:${f.color}22;color:${f.color}">${i+1}</div>
+        <div class="bolim-info">
+          <h4>${b.icon} ${b.name}</h4>
+          <p>${b.desc} · 20 savol</p>
+        </div>
+        <span class="bolim-arrow">›</span>
+      </div>`).join('')}
+    </div>
+  </div>${renderBottomNav()}`;
+}
+
+function renderBolimInfo(){
+  const f=FANLAR[state.fanId];
+  const b=f.bolimlar.find(x=>x.id===state.bolimId);
+  return`<div class="page-content fade-up">
+    <button class="back-btn" onclick="state.screen='fan';render()">← Orqaga</button>
+    <div class="bolim-info-card">
+      <div class="bolim-info-icon">${b.icon}</div>
+      <h2 class="bolim-info-title">${b.name}</h2>
+      <p class="bolim-info-desc">${b.desc}<br><br>Bu bo'limda siz ${b.name.toLowerCase()} mavzusida bilimingizni sinab ko'rasiz. Har bir savolga to'liq izoh beriladi.</p>
+      <div class="bolim-info-stats">
+        <div class="bis"><div class="bis-num" style="color:${f.color}">20</div><div class="bis-label">Savol</div></div>
+        <div class="bis"><div class="bis-num" style="color:${f.color}">30'</div><div class="bis-label">Vaqt</div></div>
+        <div class="bis"><div class="bis-num" style="color:${f.color}">4</div><div class="bis-label">Variant</div></div>
+      </div>
+      <button class="btn-boshlash" style="background:linear-gradient(135deg,${f.color},${f.color2})" onclick="startQuiz()">
+        Testni boshlash →
+      </button>
+    </div>
   </div>`;
 }
 
-function renderQuiz() {
-  const q = state.questions[state.current];
-  const pct = (state.current / state.questions.length) * 100;
-  const catColor = CATEGORY_COLORS[q.category] || '#888';
-  const m = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
-  const s = String(state.timeLeft % 60).padStart(2, '0');
-  const timerClass = state.timeLeft < 300 ? 'timer urgent' : 'timer';
-
-  const optionsHtml = q.options.map((opt, i) => {
-    let cls = 'option-btn';
-    let icon = '<span class="option-circle"></span>';
-    let textColor = '#cde4f0';
-    if (!state.confirmed && state.selected === i) {
-      cls += ' selected';
-      icon = '<span class="option-circle" style="background:#e8a020;border-color:#e8a020"></span>';
-    }
-    if (state.confirmed && i === q.answer) {
-      cls += ' correct';
-      icon = '<span class="option-circle" style="border:none;color:#2ecc71;font-size:16px">✓</span>';
-      textColor = '#a8f0c0';
-    }
-    if (state.confirmed && i === state.selected && i !== q.answer) {
-      cls += ' wrong';
-      icon = '<span class="option-circle" style="border:none;color:#e74c3c;font-size:16px">✗</span>';
-      textColor = '#f0a8a0';
-    }
-    return `<button class="${cls}" onclick="selectOption(${i})">
-      ${icon}
-      <span class="option-text" style="color:${textColor}">${opt}</span>
-    </button>`;
+function renderQuiz(){
+  const q=state.questions[state.current];
+  const f=FANLAR[state.fanId];
+  const pct=(state.current/state.questions.length)*100;
+  const m=String(Math.floor(state.timeLeft/60)).padStart(2,'0');
+  const s=String(state.timeLeft%60).padStart(2,'0');
+  const urgent=state.timeLeft<300;
+  const opts=q.o.map((opt,i)=>{
+    let cls='option-btn',icon='<span class="option-circle"></span>',tc='#cde4f0';
+    if(!state.confirmed&&state.selected===i){cls+=' selected';icon=`<span class="option-circle" style="background:${f.color};border-color:${f.color}"></span>`;}
+    if(state.confirmed&&i===q.a){cls+=' correct';icon='<span class="option-circle" style="border:none;color:#10b981;font-size:16px">✓</span>';tc='#a8f0c0';}
+    if(state.confirmed&&i===state.selected&&i!==q.a){cls+=' wrong';icon='<span class="option-circle" style="border:none;color:#ef4444;font-size:16px">✗</span>';tc='#f0a8a0';}
+    return`<button class="${cls}" onclick="selOpt(${i})">${icon}<span class="option-text" style="color:${tc}">${opt}</span></button>`;
   }).join('');
-
-  const explanationHtml = state.confirmed ? `
-    <div class="explanation">
-      <p>💡 <strong>Izoh:</strong> ${q.explanation}</p>
-    </div>` : '';
-
-  const actionBtn = !state.confirmed
-    ? `<button class="btn-confirm" onclick="confirm()" ${state.selected === null ? 'disabled' : ''}>Tasdiqlash</button>`
-    : `<button class="btn-next" onclick="next()">${state.current + 1 >= state.questions.length ? 'Natijani ko\'rish 🏁' : 'Keyingi savol →'}</button>`;
-
-  return `<div class="quiz-screen">
+  const expl=state.confirmed?`<div class="explanation"><p>💡 <strong>Izoh:</strong> ${q.e}</p></div>`:'';
+  const btn=!state.confirmed
+    ?`<button class="btn-confirm" onclick="confirmAns()" ${state.selected===null?'disabled':''}>Tasdiqlash</button>`
+    :`<button class="btn-next" onclick="nextQ()">${state.current+1>=state.questions.length?'Natijani ko\'rish 🏁':'Keyingi →'}</button>`;
+  return`<div class="quiz-screen fade-up">
     <div class="quiz-header">
-      <span class="q-counter">${state.current + 1} / ${state.questions.length}</span>
-      <span id="timer" class="${timerClass}">⏱ ${m}:${s}</span>
+      <span class="q-counter">${state.current+1}/${state.questions.length}</span>
+      <span id="timer" class="timer${urgent?' urgent':''}" >⏱ ${m}:${s}</span>
       <span class="score-badge">✓ ${state.score}</span>
     </div>
-    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,${f.color},${f.color2})"></div></div>
     <div class="card">
-      <span class="category-tag" style="background:${catColor}22;border:1px solid ${catColor}66;color:${catColor}">${q.category}</span>
-      <p class="question-text">${q.question}</p>
-      <div class="options">${optionsHtml}</div>
-      ${explanationHtml}
-      <div class="btn-row">${actionBtn}</div>
+      <span class="category-tag" style="background:${f.color}22;border:1px solid ${f.color}66;color:${f.color}">${FANLAR[state.fanId].bolimlar.find(x=>x.id===state.bolimId)?.name||''}</span>
+      <p class="question-text">${q.q}</p>
+      <div class="options">${opts}</div>
+      ${expl}
+      <div class="btn-row">${btn}</div>
     </div>
   </div>`;
 }
 
-function renderResult() {
-  const total = state.questions.length;
-  const pct = Math.round((state.score / total) * 100);
-  const grade = pct >= 90 ? "A'lo 🏆" : pct >= 70 ? "Yaxshi 👍" : pct >= 50 ? "Qoniqarli 📖" : "Qoniqarsiz 💪";
-  const gradeColor = pct >= 90 ? '#27ae60' : pct >= 70 ? '#3498db' : pct >= 50 ? '#f39c12' : '#e74c3c';
-  const emoji = pct >= 70 ? '🎉' : '📚';
-  const m = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
-  const sc = String(state.timeLeft % 60).padStart(2, '0');
-  const reviewBtn = state.wrong.length > 0
-    ? `<button class="btn-review" onclick="openReview()">✗ Xatolarni ko'rish (${state.wrong.length} ta)</button>` : '';
-  return `<div class="result-screen">
-    <div class="result-emoji">${emoji}</div>
+function renderResult(){
+  const total=state.questions.length;
+  const pct=Math.round((state.score/total)*100);
+  const grade=pct>=90?"A'lo 🏆":pct>=70?"Yaxshi 👍":pct>=50?"Qoniqarli 📖":"Qoniqarsiz 💪";
+  const gc=pct>=90?'#10b981':pct>=70?'#3b82f6':pct>=50?'#f59e0b':'#ef4444';
+  const m=String(Math.floor(state.timeLeft/60)).padStart(2,'0');
+  const sc=String(state.timeLeft%60).padStart(2,'0');
+  return`<div class="result-screen">
+    <div class="result-emoji">${pct>=70?'🎉':'📚'}</div>
     <h2 class="result-title">Test yakunlandi!</h2>
-    <div class="result-score" style="color:${gradeColor}">${state.score}/${total}</div>
-    <div class="result-grade" style="color:${gradeColor}">${grade} (${pct}%)</div>
+    <div class="result-score" style="color:${gc}">${state.score}/${total}</div>
+    <div class="result-grade" style="color:${gc}">${grade} (${pct}%)</div>
     <div class="stats-box">
-      <div class="stat"><div class="stat-num" style="color:#2ecc71">${state.score}</div><div class="stat-label">To'g'ri</div></div>
+      <div class="stat"><div class="stat-num" style="color:#10b981">${state.score}</div><div class="stat-label">To'g'ri</div></div>
       <div class="divider"></div>
-      <div class="stat"><div class="stat-num" style="color:#e74c3c">${total - state.score}</div><div class="stat-label">Xato</div></div>
+      <div class="stat"><div class="stat-num" style="color:#ef4444">${total-state.score}</div><div class="stat-label">Xato</div></div>
       <div class="divider"></div>
       <div class="stat"><div class="stat-num" style="color:#e8a020">${m}:${sc}</div><div class="stat-label">Qolgan</div></div>
     </div>
-    ${reviewBtn}
-    <button class="btn-restart" onclick="startQuiz()">🔄 Qaytadan boshlash</button>
+    <button class="btn-restart" onclick="startQuiz()">🔄 Qaytadan</button>
+    <button class="btn-home" onclick="goTab('home')">🏠 Bosh sahifa</button>
   </div>`;
 }
 
-function openReview() {
-  state.screen = 'review';
-  state.reviewIndex = 0;
+function renderReyting(){
+  const data=[
+    {name:"Abdusaid Y.",score:1850,avatar:"A",color:"#e8a020"},
+    {name:"Malika R.",score:1720,avatar:"M",color:"#10b981"},
+    {name:"Jasur T.",score:1640,avatar:"J",color:"#3b82f6"},
+    {name:"Dilnoza A.",score:1590,avatar:"D",color:"#8b5cf6"},
+    {name:"Sardor K.",score:1480,avatar:"S",color:"#ef4444"},
+    {name:"Feruza M.",score:1350,avatar:"F",color:"#f59e0b"},
+    {name:"Bobur N.",score:1210,avatar:"B",color:"#06b6d4"},
+  ];
+  const ranks=['🥇','🥈','🥉'];
+  const rankCls=['gold','silver','bronze'];
+  return`<div class="page-content fade-up">
+    <div class="navbar"><span class="nav-logo">🏆 Reyting</span></div>
+    <div class="reyting-card">
+      <div class="reyting-title">🏆 Top o'quvchilar</div>
+      ${data.map((d,i)=>`
+      <div class="reyting-row">
+        <span class="reyting-rank ${rankCls[i]||''}">${ranks[i]||i+1}</span>
+        <div class="reyting-avatar" style="background:${d.color}">${d.avatar}</div>
+        <span class="reyting-name">${d.name}</span>
+        <span class="reyting-score">${d.score} ball</span>
+      </div>`).join('')}
+    </div>
+    <div class="reyting-card" style="background:rgba(232,160,32,0.08);border-color:rgba(232,160,32,0.3)">
+      <div style="text-align:center">
+        <div style="font-size:32px">🥇</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;margin:8px 0">Sizning o'rningiz</div>
+        <div style="font-size:36px;font-weight:700;color:#e8a020">#1</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:4px">${state.profil.totalScore} ball · ${state.profil.totalTests} test</div>
+      </div>
+    </div>
+  </div>${renderBottomNav()}`;
+}
+
+function renderProfil(){
+  return`<div class="page-content fade-up">
+    <div class="navbar"><span class="nav-logo">👤 Profil</span></div>
+    <div class="profil-header">
+      <div class="profil-avatar">${state.profil.name[0]}</div>
+      <div class="profil-name">${state.profil.name}</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px">📚 DAI Tayyorgarlik</div>
+    </div>
+    <div class="profil-stats">
+      <div class="profil-stat"><div class="profil-stat-num">${state.profil.totalTests}</div><div class="profil-stat-label">Testlar</div></div>
+      <div class="profil-stat"><div class="profil-stat-num">${state.profil.totalScore}</div><div class="profil-stat-label">Ball</div></div>
+      <div class="profil-stat"><div class="profil-stat-num">#1</div><div class="profil-stat-label">Reyting</div></div>
+    </div>
+    <div class="profil-history">
+      <div class="profil-history-title">📊 So'nggi natijalar</div>
+      ${state.profil.history.length===0
+        ?'<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Hali test topshirilmagan</div>'
+        :state.profil.history.slice(-5).reverse().map(h=>`
+        <div class="history-item">
+          <span class="history-fan">${FANLAR[h.fanId]?.icon||'📝'} ${h.bolim}</span>
+          <span class="history-ball" style="color:${h.pct>=70?'#10b981':'#ef4444'}">${h.score}/${h.total} (${h.pct}%)</span>
+        </div>`).join('')}
+    </div>
+    <button class="invite-btn" onclick="share()">
+      📤 Do'stlarni taklif qilish
+    </button>
+  </div>${renderBottomNav()}`;
+}
+
+function renderBottomNav(){
+  const tabs=[
+    {id:'home',icon:'🏠',label:'Bosh'},
+    {id:'reyting',icon:'🏆',label:'Reyting'},
+    {id:'profil',icon:'👤',label:'Profil'},
+  ];
+  return`<nav class="bottom-nav">
+    ${tabs.map(t=>`
+    <button class="nav-item ${state.tab===t.id?'active':''}" onclick="goTab('${t.id}')">
+      <span class="nav-icon">${t.icon}</span>
+      <span class="nav-label">${t.label}</span>
+    </button>`).join('')}
+  </nav>`;
+}
+
+// ============ ACTIONS ============
+function goTab(tab){
+  state.tab=tab;
+  if(tab==='home') state.screen='home';
+  else if(tab==='reyting') state.screen='reyting';
+  else if(tab==='profil') state.screen='profil';
   render();
 }
 
-function renderReview() {
-  const w = state.wrong[state.reviewIndex];
-  const catColor = CATEGORY_COLORS[w.category] || '#888';
-  const optionsHtml = w.options.map((opt, i) => {
-    const isCorrect = i === w.answer;
-    const isChosen = i === w.chosen;
-    let cls = 'option-btn';
-    let icon = '<span class="option-circle"></span>';
-    let textColor = '#cde4f0';
-    if (isCorrect) { cls += ' correct'; icon = '<span class="option-circle" style="border:none;color:#2ecc71;font-size:16px">✓</span>'; textColor = '#a8f0c0'; }
-    if (isChosen && !isCorrect) { cls += ' wrong'; icon = '<span class="option-circle" style="border:none;color:#e74c3c;font-size:16px">✗</span>'; textColor = '#f0a8a0'; }
-    return `<button class="${cls}" style="cursor:default">
-      ${icon}<span class="option-text" style="color:${textColor}">${opt}</span>
-    </button>`;
-  }).join('');
-  const prevBtn = state.reviewIndex > 0 ? `<button class="btn-nav" onclick="reviewNav(-1)">← Oldingi</button>` : '<span></span>';
-  const nextBtn = state.reviewIndex < state.wrong.length - 1 ? `<button class="btn-nav" onclick="reviewNav(1)">Keyingi →</button>` : '<span></span>';
-  return `<div class="review-screen">
-    <div class="review-nav">
-      <button class="btn-back" onclick="state.screen='result';render()">← Natijaga qaytish</button>
-      <span style="color:var(--muted);font-size:13px">${state.reviewIndex + 1} / ${state.wrong.length}</span>
-    </div>
-    <div class="card">
-      <span class="category-tag" style="background:${catColor}22;border:1px solid ${catColor}66;color:${catColor}">${w.category}</span>
-      <p class="question-text">${w.question}</p>
-      <div class="options">${optionsHtml}</div>
-      <div class="explanation"><p>💡 <strong>Izoh:</strong> ${w.explanation}</p></div>
-      <div class="btn-row">${prevBtn}${nextBtn}</div>
-    </div>
-  </div>`;
+function openFan(id){state.fanId=id;state.screen='fan';render();}
+
+function openBolimInfo(id){state.bolimId=id;state.screen='bolimInfo';render();}
+
+function startQuiz(){
+  state.questions=shuffle(getSavollar(state.fanId,state.bolimId));
+  state.current=0;state.selected=null;state.confirmed=false;
+  state.score=0;state.wrong=[];state.timeLeft=30*60;
+  state.screen='quiz';
+  clearInterval(state.timer);
+  state.timer=setInterval(()=>{
+    state.timeLeft--;
+    if(state.timeLeft<=0){clearInterval(state.timer);finishQuiz();return;}
+    const el=document.getElementById('timer');
+    if(el){
+      const m=String(Math.floor(state.timeLeft/60)).padStart(2,'0');
+      const s=String(state.timeLeft%60).padStart(2,'0');
+      el.textContent='⏱ '+m+':'+s;
+      el.className='timer'+(state.timeLeft<300?' urgent':'');
+    }
+  },1000);
+  render();
 }
 
-function reviewNav(dir) {
-  state.reviewIndex += dir;
+function selOpt(i){if(state.confirmed)return;state.selected=i;render();}
+
+function confirmAns(){
+  if(state.selected===null)return;
+  state.confirmed=true;
+  const q=state.questions[state.current];
+  if(state.selected===q.a)state.score++;
+  else state.wrong.push({...q,chosen:state.selected});
   render();
+}
+
+function nextQ(){
+  state.current++;
+  if(state.current>=state.questions.length){finishQuiz();return;}
+  state.selected=null;state.confirmed=false;
+  render();
+}
+
+function finishQuiz(){
+  clearInterval(state.timer);
+  const total=state.questions.length;
+  const pct=Math.round((state.score/total)*100);
+  const f=FANLAR[state.fanId];
+  const b=f.bolimlar.find(x=>x.id===state.bolimId);
+  state.profil.totalTests++;
+  state.profil.totalScore+=state.score*10;
+  state.profil.history.push({fanId:state.fanId,bolim:b?.name||'',score:state.score,total,pct});
+  state.screen='result';
+  render();
+}
+
+function share(){
+  const url='https://abdusaidyusupov008-collab.github.io/ona-tili-test';
+  const text='DAI imtihoniga tayyorlanish uchun bu test platformasini sinab ko\'ring!';
+  if(tg&&tg.shareUrl) tg.shareUrl(url,text);
+  else if(navigator.share) navigator.share({title:'Test Platformasi',text,url});
+  else{navigator.clipboard?.writeText(url);alert('Havola nusxalandi!');}
 }
 
 render();
 </script>
 </body>
 </html>
-
